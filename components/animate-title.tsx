@@ -8,7 +8,7 @@ export default function AnimatedTitle() {
 
     useEffect(() => {
         const interval = setInterval(() => {
-            setIndex((prev) => (prev + 1) % titles.length); // Loop back to 0 after last item
+            setIndex((prev: number) => (prev + 1) % titles.length); // Loop back to 0 after last item
         }, 4000); // Change text every 2 seconds
 
         return () => clearInterval(interval);

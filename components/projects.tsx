@@ -5,8 +5,8 @@ import Image from "next/image"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { ArrowUpRight } from "lucide-react"
-import { BentoGrid, BentoGridItem } from "@/components/ui/bento-grid"
-
+import { BentoGrid } from "@/components/bento-grid"
+import { BentoGridItem } from "@/components/bento-grid-item"
 interface ProjectProps {
   project: {
     id: number

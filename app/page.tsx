@@ -10,6 +10,10 @@ import { BentoGridItem } from "@/components/bento-grid-item"
 import { SocialLink } from "@/components/social-link"
 import { Header } from "@/components/header"
 import ReviewCarousel from "@/components/review"
+import AnimatedTitle from "@/components/animate-title"
+import SpotifyGuessSong from "@/components/spotifysong"
+import CurrentlyPlayingCard from "@/components/currentplaying"
+import SpotifyGameGrid from "@/components/jamming"
 
 export default function Home() {
   const controls = useAnimation()
@@ -72,7 +76,10 @@ export default function Home() {
 
                 {/* Text Content */}
                 <h1 className="text-4xl md:text-5xl font-bold mb-4">Nikhil A V</h1>
-                <p className="text-3xl md:text-3xl font-bold mb-1">Developer</p>
+
+                <p className="text-3xl md:text-3xl font-bold mb-1"></p>
+                <AnimatedTitle />
+
                 <p className="text-xl md:text-xl font-bold text-muted-foreground">
                   currently SDE at ABB.
                 </p>
@@ -250,7 +257,7 @@ export default function Home() {
 
             <ReviewCarousel />
             {/* Portfolio Images */}
-            <BentoGridItem className="md:col-span-2 md:row-span-1 p-4">
+            <BentoGridItem className="md:col-span-2 md:row-span-1 h-[300px]">
               <motion.div
                 variants={{
                   hidden: { opacity: 0, y: 20 },
@@ -279,18 +286,15 @@ export default function Home() {
                     />
                   </motion.div>
 
-                  {/* Centered Download Button */}
-                  <a
-                    href="https://www.overleaf.com/download/project/65df30e8fae76cd2408eb935/build/195d1b5085f-bafb1411c1452638/output/output.pdf?compileGroup=standard&clsiserverid=clsi-pre-emp-n2d-b-f-p90t&enable_pdf_caching=true&popupDownload=true"
-                    download
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="absolute inset-0 flex items-center justify-center bg-black/50 text-white text-lg font-medium rounded-lg px-6 py-3 opacity-0 hover:opacity-100 transition-opacity duration-300"
+
+                  {/* Centered Download Button - Now a Button Instead of <a> */}
+                  <div
+                    onClick={() => window.open("https://www.overleaf.com/download/project/65df30e8fae76cd2408eb935/build/195d1b5085f-bafb1411c1452638/output/output.pdf", "_blank")}
+                    className="absolute inset-0 flex items-center justify-center bg-black/50 text-white text-lg font-medium rounded-lg px-2 py-1 opacity-0 hover:opacity-100 transition-opacity duration-300"
                   >
                     Download Resume
-                  </a>
+                  </div>
                 </a>
-
                 {/* Second Image - Links to Works Page */}
                 <Link
                   href="/works"
@@ -317,7 +321,29 @@ export default function Home() {
                 </Link>
               </motion.div>
             </BentoGridItem>
+          </BentoGrid>
 
+          <BentoGrid className="py-2  md:grid-cols-[70%_30%]">
+
+            <BentoGridItem className="md:col-span-1 md:row-span-1 py-2">
+              <motion.div
+                variants={{
+                  hidden: { opacity: 0, y: 20 },
+                  visible: {
+                    opacity: 1,
+                    y: 0,
+                    transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.5 },
+                  },
+                }}
+                className="h-full flex flex-col justify-center p-8 md:p-12"
+              >
+                <SpotifyGameGrid />
+              </motion.div>
+            </BentoGridItem>
+            <CurrentlyPlayingCard />
+            <BentoGridItem className="w-full md:col-span-2 md:row-span-2 py-2">
+              <SpotifyGuessSong />
+            </BentoGridItem>
             {/* Footer */}
             <BentoGridItem className="md:col-span-2 md:row-span-1">
               <motion.div

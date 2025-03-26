@@ -10,6 +10,7 @@ import { BentoGridItem } from "@/components/bento-grid-item"
 import { SocialLink } from "@/components/social-link"
 import { Header } from "@/components/header"
 import ReviewCarousel from "@/components/review"
+import AnimatedTitle from "@/components/animate-title"
 
 export default function Home() {
   const controls = useAnimation()
@@ -72,7 +73,8 @@ export default function Home() {
 
                 {/* Text Content */}
                 <h1 className="text-4xl md:text-5xl font-bold mb-4">Nikhil A V</h1>
-                <p className="text-3xl md:text-3xl font-bold mb-1">Developer</p>
+
+                <p className="text-3xl md:text-3xl font-bold mb-1"><AnimatedTitle></AnimatedTitle></p>
                 <p className="text-xl md:text-xl font-bold text-muted-foreground">
                   currently SDE at ABB.
                 </p>

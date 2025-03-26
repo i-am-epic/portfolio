@@ -31,7 +31,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
     >
       <div className="flex justify-between items-center mb-12">
         <Link href="/" className="text-xl font-medium" onClick={onClose}>
-          jenny wilson.
+          nikhil a v.
         </Link>
         <motion.button onClick={onClose} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
           <X size={24} />

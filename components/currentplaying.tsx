@@ -24,7 +24,7 @@ const CurrentlyPlayingCard = () => {
     if (!currentSong) {
         return (
             <BentoGridItem className="p-4">
-                <div className="text-center text-gray-400">No song playing</div>
+                <div className="flex text-center item-center justify-center text-gray-400">No song playing</div>
             </BentoGridItem>
         );
     }

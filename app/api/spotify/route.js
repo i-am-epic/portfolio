@@ -1,46 +1,42 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route.js";
-import axios from "axios";
+import { getAccessToken } from '../auth/[...nextauth]/route';
+import axios from 'axios';
 
 export async function GET(req) {
-    const session = await getServerSession(authOptions);
+    const accessToken = await getAccessToken();
 
-    if (!session) {
-        return new Response(JSON.stringify({ error: "Not authenticated" }), {
-            status: 401,
-            headers: { "Content-Type": "application/json" },
+    if (!accessToken) {
+        return new Response(JSON.stringify({ error: 'Failed to obtain access token' }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' },
         });
     }
 
-    const { accessToken } = session;
-
     try {
         // Fetch Currently Playing Song
-        const nowPlaying = await axios.get("https://api.spotify.com/v1/me/player/currently-playing", {
+        const nowPlayingResponse = await axios.get('https://api.spotify.com/v1/me/player/currently-playing', {
             headers: { Authorization: `Bearer ${accessToken}` },
         });
 
         // Fetch Recently Played Songs (if nothing is playing)
-        const lastPlayed = await axios.get("https://api.spotify.com/v1/me/player/recently-played?limit=5", {
+        const lastPlayedResponse = await axios.get('https://api.spotify.com/v1/me/player/recently-played?limit=5', {
             headers: { Authorization: `Bearer ${accessToken}` },
         });
 
         return new Response(JSON.stringify({
-            currentlyPlaying: nowPlaying.data?.item || null,
-            lastPlayed: lastPlayed.data?.items || [],
+            currentlyPlaying: nowPlayingResponse.data?.item || null,
+            lastPlayed: lastPlayedResponse.data?.items || [],
         }), {
             status: 200,
-            headers: { "Content-Type": "application/json" },
+            headers: { 'Content-Type': 'application/json' },
         });
     } catch (error) {
-        // Log error details for debugging
-        console.error("Error fetching Spotify data:", error.response ? error.response.data : error.message);
+        console.error('Error fetching Spotify data:', error.response ? error.response.data : error.message);
         return new Response(JSON.stringify({
-            error: "Error fetching song data",
-            details: error.response ? error.response.data : error.message
+            error: 'Error fetching song data',
+            details: error.response ? error.response.data : error.message,
         }), {
             status: 500,
-            headers: { "Content-Type": "application/json" },
+            headers: { 'Content-Type': 'application/json' },
         });
     }
 }

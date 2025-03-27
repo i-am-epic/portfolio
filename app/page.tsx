@@ -28,7 +28,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <div className="container mx-auto p-8">
+      <div className="container mx-auto py-8">
         <Header activePage="home" />
 
         {/* Bento Grid Layout */}
@@ -44,7 +44,7 @@ export default function Home() {
             },
           }}
         >
-          <BentoGrid className="auto-rows-[minmax(0,380px)]  md:grid-cols-[60%_40%]">
+          <BentoGrid className="md:grid-cols-[59.8%_39.6%] auto-rows-[minmax(0,380px)]">
             {/* Profile Section */}
             <BentoGridItem className="md:col-span-1 md:row-span-1">
               <motion.div
@@ -56,10 +56,10 @@ export default function Home() {
                     transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] },
                   },
                 }}
-                className="h-full flex flex-col items-center justify-center p-8 md:p-12 text-center"
+                className="h-full flex flex-col items-center justify-center md:p-12 text-center"
               >
                 {/* Image Wrapper */}
-                <div className="mb-6 w-32 h-32 relative mx-auto md:mx-0 overflow-hidden rounded-full">
+                <div className="mb-3 w-32 h-32   relative mx-auto md:mx-0 overflow-hidden rounded-full">
                   <motion.div
                     whileHover={{ scale: 1.2 }}
                     transition={{ duration: 0.5, ease: "easeInOut" }}
@@ -126,14 +126,14 @@ export default function Home() {
             </BentoGridItem>
           </BentoGrid>
 
-          <BentoGrid className="py-2  md:grid-cols-[40%_60%]">
+          <BentoGrid className="md:grid-cols-[39.6%_59.8%] py-2">
 
             {/* Social Links Section */}
-            <BentoGridItem className="md:col-span-2 bg-black rounded-xl">
+            <BentoGridItem className="overflow-x-auto scrollbar-hide md:col-span-2 bg-black rounded-xl">
               <motion.div
                 initial="hidden"
                 animate="visible"
-                className="flex gap-4 px-2"
+                className="flex gap-4 "
               >
                 {/* LinkedIn */}
                 <motion.div
@@ -194,7 +194,7 @@ export default function Home() {
             </BentoGridItem>
 
             {/* About Section */}
-            <BentoGridItem className="md:col-span-1 md:row-span-1 py-2">
+            <BentoGridItem className="md:col-span-1 md:row-span-1">
               <motion.div
                 variants={{
                   hidden: { opacity: 0, y: 20 },

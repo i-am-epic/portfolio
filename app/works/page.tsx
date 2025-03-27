@@ -91,7 +91,6 @@ export default function Works() {
     },
   ];
 
-
   const controls = useAnimation()
   const ref = useRef(null)
   const inView = useInView(ref, { once: true, amount: 0.1 })
@@ -105,47 +104,35 @@ export default function Works() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="container mx-auto p-8">
-
         <Header activePage="works" />
 
-        <div className="w-full container mx-auto px-16 ">
-
-
-
-          <BentoGridItem className="md:col-span-1 md:row-span-1 p-6">
+        <BentoGrid className="gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+          <BentoGridItem className="md:col-span-2 lg:col-span-3 p-6">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
               className="mb-16"
             >
-
-
               <h2 className="text-4xl md:text-5xl font-bold mb-4">Projects</h2>
               <p className="text-xl text-muted-foreground mb-4">
-                A collection of my recent projects and collaborations. Each project represents a unique challenge and
-                solution.
+                A collection of my recent projects and collaborations. Each project represents a unique challenge and solution.
               </p>
             </motion.div>
           </BentoGridItem>
-
-          <BentoGrid className="py-2 px-0 grid-cols-1 md:grid-cols-1">
-
-            <motion.div
-              ref={ref}
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              className="space-y-16"
-            >
-              {projects.map((project) => (
-                <ProjectCard key={project.id} project={project} />
-              ))}
-            </motion.div>
           </BentoGrid>
-        </div>
+          <BentoGrid className="gap-2 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 py-2">
+
+
+          {projects.map((project) => (
+                      <BentoGridItem className="md:col-span-2 lg:col-span-3">
+
+              <ProjectCard project={project} />
+              </BentoGridItem>
+
+          ))}
+        </BentoGrid>
       </div>
     </div>
   )
 }
-

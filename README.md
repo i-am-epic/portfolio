@@ -1,6 +1,8 @@
 # Bento Portfolio
 
-A modern, customizable portfolio website built with React, Next.js, and SCSS. Features a beautiful bento grid layout that's fully responsive and easy to customize.
+A modern, customizable portfolio website built with React, Next.js, and SCSS. Features a beautiful bento grid layout that's fully responsive and .
+# Website
+https://nikboson.vercel.app
 
 ## Features
 

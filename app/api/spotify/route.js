@@ -1,42 +1,33 @@
-import { getAccessToken } from '../auth/[...nextauth]/route';
-import axios from 'axios';
+import SpotifyWebApi from 'spotify-web-api-node';
+
+const spotifyApi = new SpotifyWebApi({
+  clientId: process.env.SPOTIFY_CLIENT_ID,
+  clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+  redirectUri: process.env.SPOTIFY_REDIRECT_URI,
+});
+
+// Set the refresh token you obtained during the OAuth flow
+spotifyApi.setRefreshToken(process.env.SPOTIFY_REFRESH_TOKEN);
 
 export async function GET(req) {
-    const accessToken = await getAccessToken();
+  try {
+    // Refresh the access token
+    const data = await spotifyApi.refreshAccessToken();
+    const accessToken = data.body['access_token'];
+    spotifyApi.setAccessToken(accessToken);
 
-    if (!accessToken) {
-        return new Response(JSON.stringify({ error: 'Failed to obtain access token' }), {
-            status: 500,
-            headers: { 'Content-Type': 'application/json' },
-        });
-    }
+    // Fetch the currently playing track
+    const currentlyPlayingData = await spotifyApi.getMyCurrentPlayingTrack();
 
-    try {
-        // Fetch Currently Playing Song
-        const nowPlayingResponse = await axios.get('https://api.spotify.com/v1/me/player/currently-playing', {
-            headers: { Authorization: `Bearer ${accessToken}` },
-        });
+    // Optionally, you can also fetch recently played tracks:
+    // const recentlyPlayedData = await spotifyApi.getMyRecentlyPlayedTracks();
 
-        // Fetch Recently Played Songs (if nothing is playing)
-        const lastPlayedResponse = await axios.get('https://api.spotify.com/v1/me/player/recently-played?limit=5', {
-            headers: { Authorization: `Bearer ${accessToken}` },
-        });
-
-        return new Response(JSON.stringify({
-            currentlyPlaying: nowPlayingResponse.data?.item || null,
-            lastPlayed: lastPlayedResponse.data?.items || [],
-        }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-        });
-    } catch (error) {
-        console.error('Error fetching Spotify data:', error.response ? error.response.data : error.message);
-        return new Response(JSON.stringify({
-            error: 'Error fetching song data',
-            details: error.response ? error.response.data : error.message,
-        }), {
-            status: 500,
-            headers: { 'Content-Type': 'application/json' },
-        });
-    }
+    return new Response(JSON.stringify({
+      currentlyPlaying: currentlyPlayingData.body,
+      // recentlyPlayed: recentlyPlayedData.body
+    }), { status: 200 });
+  } catch (error) {
+    console.error('Error fetching Spotify data:', error);
+    return new Response(JSON.stringify({ error: 'Failed to fetch Spotify data' }), { status: 500 });
+  }
 }

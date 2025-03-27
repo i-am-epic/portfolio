@@ -1,4 +1,5 @@
 import querystring from 'querystring';
+import { NextResponse } from "next/server";
 
 const clientId = process.env.SPOTIFY_CLIENT_ID;
 const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
@@ -21,6 +22,7 @@ async function getAccessToken() {
         if (!response.ok) {
             throw new Error(data.error_description || 'Failed to obtain access token');
         }
+        console.log('Access token obtained:', data.access_token);
         return data.access_token;
     } catch (error) {
         console.error('Error obtaining access token:', error);

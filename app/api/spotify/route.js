@@ -20,11 +20,11 @@ export async function GET(req) {
     const currentlyPlayingData = await spotifyApi.getMyCurrentPlayingTrack();
 
     // Optionally, you can also fetch recently played tracks:
-    // const recentlyPlayedData = await spotifyApi.getMyRecentlyPlayedTracks();
+    const recentlyPlayedData = await spotifyApi.getMyRecentlyPlayedTracks();
 
     return new Response(JSON.stringify({
       currentlyPlaying: currentlyPlayingData.body,
-      // recentlyPlayed: recentlyPlayedData.body
+      lastPlayed: recentlyPlayedData.body
     }), { status: 200 });
   } catch (error) {
     console.error('Error fetching Spotify data:', error);

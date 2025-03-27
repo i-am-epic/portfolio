@@ -71,7 +71,7 @@ export default function Contact() {
                 >
                   <Link
                     href="mailto:niknikhilav@gmail.com"
-                    className="block w-full py-6 px-8 bg-accent text-accent-foreground rounded-full text-xl font-medium text-center hover:bg-accent/90 transition-colors"
+                    className="flex justify-center  bg-accent text-accent-foreground rounded-full text-[3vw] sm:text-xl font-medium text-center hover:bg-accent/90 transition-colors py-2 px-4"
                   >
                     niknikhilav@gmail.com
                   </Link>

@@ -129,7 +129,7 @@ export default function Home() {
           <BentoGrid className="py-2  md:grid-cols-[40%_60%]">
 
             {/* Social Links Section */}
-            <BentoGridItem className="md:col-span-2 bg-black rounded-xl">
+            <BentoGridItem className="overflow-x-auto scrollbar-hide md:col-span-2 bg-black rounded-xl">
               <motion.div
                 initial="hidden"
                 animate="visible"

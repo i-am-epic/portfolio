@@ -15,6 +15,7 @@ export function BentoGridItem({ className, children }: BentoGridItemProps) {
         "bg-card rounded-3xl overflow-hidden relative group",
         "before:absolute before:inset-0 before:z-100 before:bg-noise-pattern before:opacity-[0.35] before:pointer-events-none",
         "after:absolute after:inset-0 after:z-1000 after:rounded-3xl after:pointer-events-none after:shadow-inner after:shadow-black/5",
+        "p-[clamp(-2px,2vw,16px)]", // Dynamic padding
         className,
       )}
     >
@@ -22,4 +23,3 @@ export function BentoGridItem({ className, children }: BentoGridItemProps) {
     </div>
   )
 }
-

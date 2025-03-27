@@ -24,15 +24,17 @@ const CurrentlyPlayingCard = () => {
     if (!currentSong) {
         return (
             <BentoGridItem className="p-4">
-                <div className="flex text-center item-center justify-center text-gray-400">No song playing</div>
+                <div className="flex text-center item-center justify-center text-gray-400">
+                    No song playing
+                </div>
             </BentoGridItem>
         );
     }
 
     // Get the album image (largest available)
-    const albumImage = currentSong.album?.images?.[0]?.url;
+    const albumImage = currentSong.item?.album?.images?.[0]?.url;
     // Get the track's Spotify URL
-    const trackUrl = currentSong.external_urls?.spotify;
+    const trackUrl = currentSong.item?.external_urls?.spotify;
 
     return (
         <BentoGridItem className="p-4">
@@ -45,7 +47,7 @@ const CurrentlyPlayingCard = () => {
             >
                 <Image
                     src={albumImage}
-                    alt={currentSong.name}
+                    alt={currentSong.item?.name || "Song"}
                     width={600}
                     height={600}
                     className="object-cover"
@@ -56,14 +58,13 @@ const CurrentlyPlayingCard = () => {
                         rotate: [0, 360],
                         transition: { duration: 5, ease: "linear", repeat: Infinity }
                     }}
-                    className="absolute inset-0 flex items-center justify-center bg-black/025 opacity-0  hover:opacity-100 transition-opacity duration-300"
+                    className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 hover:opacity-100 transition-opacity duration-300"
                 >
                     <Image
                         src="/spotify_logo.png"
                         alt="Spotify"
                         width={200}
                         height={200}
-
                     />
                 </motion.div>
             </motion.a>

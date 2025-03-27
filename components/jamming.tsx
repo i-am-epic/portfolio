@@ -41,7 +41,7 @@ const CurrentlyJamming = () => {
   const albumImage = currentSong.album?.images?.[0]?.url;
   // Get the track's Spotify URL
   const trackUrl = currentSong.external_urls?.spotify;
-
+  const jamURL = process.env.NEXT_PUBLIC_SPOTIFYJAM_URL
   return (
     <div className="text-center">
       <h2 className="text-3xl font-bold text-green-500">
@@ -49,7 +49,7 @@ const CurrentlyJamming = () => {
       </h2>
       <p className="text-xl mt-2">"{currentSong.name}"</p>
       <a
-        href={trackUrl || "https://spotify.link/FdgaVwTp3Rb"}
+        href={jamURL || "https://spotify.link/FdgaVwTp3Rb" }
         target="_blank"
         rel="noopener noreferrer"
         className="mt-4 inline-block bg-green-500 hover:bg-green-400 text-black font-bold px-4 py-2 rounded transition"

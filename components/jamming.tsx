@@ -19,7 +19,7 @@ const CurrentlyJamming = () => {
         fetchCurrentlyPlaying();
     }, []);
 
-    if (!currentSong) return <div className="text-center text-gray-400">No song playing</div>;
+    if (!currentSong) return <div className="text-center text-gray-400">Nikhil is not listining to anything currently</div>;
 
     return (
         <div className="text-center">

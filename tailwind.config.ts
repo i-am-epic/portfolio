@@ -38,8 +38,10 @@ const config = {
         sm: "calc(var(--radius) - 1rem)",
       },
       fontFamily: {
-        sans: ["var(--font-inter)"],
-      },
+        sans: ["Poppins", "sans-serif"],
+        serif: ["YourFontName", "serif"],
+        mono: ["YourFontName", "monospace"],
+      },      
       gridTemplateColumns: {
         "1/5": "repeat(5, minmax(0, 1fr))",
       },

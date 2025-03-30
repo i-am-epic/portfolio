@@ -1,6 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
 
 :root {
   --background: 0 0% 0%;
@@ -25,6 +27,7 @@
 body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
+  font-family: 'Poppins', sans-serif;
   font-feature-settings: "ss01" on, "ss03" on;
 }
 

@@ -31,11 +31,11 @@ export function Header({ activePage = "home" }: HeaderProps) {
         transition={{ duration: 0.5 }}
         className="px-[clamp(0px,2vw,16px)] py-2"
       >
-        <BentoGrid className={`md:grid-cols-[100%_00%] px-0 py-0.5 grid place-items-center bg-card rounded-full transition-all duration-300 ${scrolled ? "shadow-lg backdrop-blur-md bg-card/90" : ""}`}>
+        <BentoGrid className={`md:grid-cols-[100%_00%] px-0 py-1.5 grid place-items-center bg-card rounded-full transition-all duration-300 ${scrolled ? "shadow-lg backdrop-blur-md bg-card/90" : ""}`}>
           <BentoGridItem className="md:col-span-1 md:row-span-1 w-full px-6 flex items-center justify-between">
             {/* Logo */}
             <Link href="/" className="text-xl font-medium">
-              nikhil a v
+              nikhil a v.
             </Link>
             {/* Navigation Links */}
             <nav className="hidden md:flex space-x-10">

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ff7a48" />
+      <stop offset="100%" stop-color="#77a6ff" />
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="#10131f" />
+  <!-- Letter N: left vertical | diagonal | right vertical -->
+  <path d="M28 28V100L100 28V100" fill="none" stroke="url(#grad)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round">
+    <animate attributeName="stroke-dasharray" values="0,260;260,0;0,260" dur="2.8s" repeatCount="indefinite" />
+  </path>
+</svg>

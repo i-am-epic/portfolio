@@ -13,6 +13,8 @@ https://nikboson.vercel.app
 - Easy to customize with SCSS variables
 - Built with React and Next.js
 - No external UI libraries - pure React components
+- Gemini-powered portfolio chatbot with lightweight RAG retrieval
+- Live preview links for featured projects
 
 ## Project Structure
 
@@ -65,12 +67,21 @@ git clone https://github.com/yourusername/bento-portfolio.git
 npm install
 ```
 
-3. Run the development server:
+3. Configure environment variables:
+```bash
+cp .env.example .env.local
+```
+
+Set at least:
+- `GEMINI_API_KEY` for `/api/profile-chat`
+- Spotify keys for `/api/spotify` (optional)
+
+4. Run the development server:
 ```bash
 npm run dev
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) to view your portfolio.
+5. Open [http://localhost:3000](http://localhost:3000) to view your portfolio.
 or visit "https://nikboson.vercel.app"
 
 ## Building for Production

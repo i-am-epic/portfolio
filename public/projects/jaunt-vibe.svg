@@ -1,0 +1,14 @@
+<svg width="1200" height="700" viewBox="0 0 1200 700" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="jg" x1="0" y1="0" x2="1200" y2="700" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#10202F"/>
+      <stop offset="1" stop-color="#214D67"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="700" rx="36" fill="url(#jg)"/>
+  <path d="M140 540C290 430 420 430 540 510C650 584 760 580 900 480L1040 390" stroke="#8EDBFF" stroke-width="10" fill="none" stroke-linecap="round"/>
+  <circle cx="1040" cy="390" r="16" fill="#8EDBFF"/>
+  <rect x="190" y="170" width="330" height="210" rx="24" fill="#18384D" stroke="#59A7CC"/>
+  <rect x="560" y="220" width="450" height="250" rx="24" fill="#18384D" stroke="#59A7CC"/>
+  <text x="84" y="86" fill="#DDF3FF" font-family="Arial, sans-serif" font-size="34" font-weight="700">JAUNT VIBE TRAVEL APP</text>
+</svg>

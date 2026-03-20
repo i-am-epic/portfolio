@@ -1,99 +1,236 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { motion, useInView, useAnimation } from "framer-motion"
 import { Header } from "@/components/header"
 import { ProjectCard } from "@/components/project-card"
 import { BentoGridItem } from "@/components/bento-grid-item"
 import { BentoGrid } from "@/components/bento-grid"
 
+type ProjectCategory = "All" | "AI" | "Data" | "Backend" | "Cloud" | "Performance"
+
 export default function Works() {
   const projects = [
     {
-      id: 1,
-      title: "IPOSuite (IPO Screening and Analysis Platform)",
-      subtitle: "Python, React, Node, NLP, FastAPI, Chatbot, RAG",
+      id: 0,
+      title: "Quantos",
+      subtitle: "Private, Finance Terminal, Work in Progress",
       description:
-        "Developed a comprehensive IPO analysis platform providing real-time updates on 100+ IPOs. Integrated NLP-based RAG chatbot for extracting key insights from DRHP/RHP documents, with portfolio management and community features to aid investment decisions.",
-      image: "/placeholder.svg",
-      year: "2024",
-      link: "https://github.com/i-am-epic/IPOSuite",
+        "A finance-terminal direction focused on market context, research workflows, and fast decision support. Early-stage and actively seeking feedback/collaboration.",
+      image: "/projects/quantos.svg",
+      year: "2026",
+      link: "https://github.com/i-am-epic",
+      previewUrl: "https://github.com/i-am-epic",
+      status: "WIP",
+      tags: ["Data", "Backend", "AI"],
+    },
+    {
+      id: 11,
+      title: "Helios",
+      subtitle: "Self-Healing Code, AI Agents, Work in Progress",
+      description:
+        "A self-healing code project exploring issue detection, safe auto-fix flows, and developer-in-the-loop remediation. In progress and open to people who want to build this with him.",
+      image: "/projects/helios.svg",
+      year: "2026",
+      link: "https://github.com/i-am-epic",
+      previewUrl: "https://github.com/i-am-epic",
+      status: "WIP",
+      tags: ["AI", "Backend", "Performance"],
+    },
+    {
+      id: 1,
+      title: "TailorPro",
+      subtitle: "Dart, Product UX, Order Workflow",
+      description:
+        "A beautifully designed app for tailors to manage customer records, orders, delivery status, and daily shop operations with practical UX.",
+      image: "/projects/mydarzi.svg",
+      year: "2026",
+      link: "https://github.com/i-am-epic/TailorPro",
+      previewUrl: "https://github.com/i-am-epic/TailorPro",
+      status: "Active",
+      tags: ["Backend", "Cloud"],
     },
     {
       id: 2,
-      title: "Telemetry Data Ingestion Optimization",
-      subtitle: "Python, Asyncio, Aiohttp, Azure Event Hub",
+      title: "FamilyTree",
+      subtitle: "JavaScript, Graph UX, LLM-ready relations",
       description:
-        "Optimized Python scripts for telemetry data ingestion, achieving higher throughput by leveraging asyncio and aiohttp for concurrent requests.",
-      image: "/placeholder.svg",
-      year: "2024",
-      link: "https://example.com/telemetry-optimization",
+        "Interactive family tree explorer with hereditary relationship mapping and LLM-friendly structure for asking relation-based questions.",
+      image: "/projects/family-tree.svg",
+      year: "2025",
+      link: "https://github.com/i-am-epic/FamilyTree",
+      previewUrl: "https://family-tree-black-nine.vercel.app/",
+      tags: ["Data", "Backend"],
     },
     {
       id: 3,
-      title: "Scalable Data Processing Pipeline",
-      subtitle: "Azure, Kubernetes, Horizontal Pod Autoscaler (HPA), gRPC",
+      title: "Nik DevTools",
+      subtitle: "JavaScript, Productivity, Utility Platform",
       description:
-        "Developed a scalable data processing pipeline handling millions of telemetry events, optimizing Kubernetes HPA and gRPC keepalive settings.",
-      image: "/placeholder.svg",
-      year: "2024",
-      link: "https://example.com/scalable-data-pipeline",
+        "A practical toolkit bundling 100+ utility tools developers use frequently, designed to reduce context switching and speed up everyday work.",
+      image: "/projects/devtools.svg",
+      year: "2025",
+      link: "https://github.com/i-am-epic/devtools",
+      previewUrl: "https://nikdevtools.vercel.app/",
+      tags: ["Backend", "Performance"],
     },
     {
       id: 4,
-      title: "AI-Powered IPO Investment Model",
-      subtitle: "Machine Learning, NLP, Financial Data Analysis",
+      title: "HouseAsAInvestment",
+      subtitle: "Python, Finance Modeling, Decision Support",
       description:
-        "Built an AI model analyzing DRHP/RHP documents to predict IPO investment potential using NLP and financial indicators.",
-      image: "/placeholder.svg",
-      year: "2024",
-      link: "https://example.com/ipo-ai-model",
+        "A finance-first tool to evaluate whether buying a house as an investment beats alternate market options based on modeled return scenarios.",
+      image: "/projects/house-investment.svg",
+      year: "2025",
+      link: "https://github.com/i-am-epic/HouseAsAInvestment",
+      previewUrl: "https://github.com/i-am-epic/HouseAsAInvestment",
+      tags: ["Data", "Performance"],
     },
     {
       id: 5,
-      title: "High-Performance Data Streaming with ADX",
-      subtitle: "Azure Data Explorer (ADX), Event Hub, Streaming Ingestion",
+      title: "MakeME",
+      subtitle: "HTML, LLM Game Loop, Leaderboards",
       description:
-        "Optimized real-time data ingestion and analytics using ADX, fine-tuning batch policies, cluster configurations, and reducing query latencies.",
-      image: "/placeholder.svg",
-      year: "2024",
-      link: "https://example.com/adx-optimization",
+        "A playful LLM game where users complete challenge prompts, get AI-scored responses, and compete through a fun leaderboard loop.",
+      image: "/projects/makeme.svg",
+      year: "2025",
+      link: "https://github.com/i-am-epic/MakeME",
+      previewUrl: "https://github.com/i-am-epic/MakeME",
+      tags: ["AI", "Backend"],
     },
     {
       id: 6,
-      title: "LandMarker (Property Valuation Platform)",
-      subtitle: "AI/ML, Python, React, Maps API, MongoDB, Keras",
+      title: "IPOSuite",
+      subtitle: "Python, React, FastAPI, NLP, RAG",
       description:
-        "Built a land valuation platform to estimate property prices using Google Maps API and AI models. Integrated a recommendation system for personalized accommodation suggestions, collaborating with a team of 4 to develop a scalable, cloud-based architecture.",
-      image: "/placeholder.svg",
-      year: "2023",
-      link: "https://github.com/i-am-epic/LandMarker",
+        "IPO screening and analysis platform with a RAG chatbot that extracts financial insights from DRHP and RHP documents.",
+      image: "/project.jpg",
+      year: "2024",
+      link: "https://github.com/i-am-epic/IPOSuite",
+      previewUrl: "https://github.com/i-am-epic/IPOSuite",
+      tags: ["AI", "Data", "Backend"],
     },
     {
       id: 7,
-      title: "So-cio (Social Media Community Platform)",
-      subtitle: "Python, FastAPI, NoSQL, JWT, React",
+      title: "Hedge-Vault",
+      subtitle: "Python, AI/ML, Options, Risk Engine",
       description:
-        "Developed 50+ REST APIs for core social platform features including posting, commenting, voting, and user authentication. Enhanced security using JWT authentication, reducing unauthorized access attempts by 40%. Designed for high-performance, handling 500+ active users with low latency.",
-      image: "/placeholder.svg",
-      year: "2022",
-      link: "https://github.com/i-am-epic/So-cio",
+        "AI-driven portfolio risk project with options pricing (Monte Carlo and Black-Scholes), strategy backtesting, and portfolio analytics.",
+      image: "/projects/hedgevault.svg",
+      year: "2025",
+      link: "https://github.com/i-am-epic/Hedge-Vault",
+      previewUrl: "https://github.com/i-am-epic/Hedge-Vault",
+      tags: ["AI", "Data"],
     },
     {
       id: 8,
-      title: "Vision Sudoku (Image-Based Sudoku Solver)",
-      subtitle: "Python, OpenCV, NumPy, ML, Image Recognition",
+      title: "Quantos-terminal",
+      subtitle: "TypeScript, Finance Tooling, Terminal UI",
       description:
-        "Developed an image recognition tool using OpenCV to detect and solve Sudoku puzzles with a 95% accuracy rate. Optimized image processing pipeline for faster performance, solving puzzles in under 3 seconds.",
-      image: "/placeholder.svg",
+        "A public finance tool terminal exploring fast market workflows and terminal-like interactions for analytics and decision support.",
+      image: "/projects/quantos-terminal.svg",
+      year: "2026",
+      link: "https://github.com/i-am-epic/Quantos-terminal",
+      previewUrl: "https://github.com/i-am-epic/Quantos-terminal",
+      status: "New",
+      tags: ["Data", "Backend", "Performance"],
+    },
+    {
+      id: 9,
+      title: "jaunt-vibe",
+      subtitle: "Flutter, Travel UX, Product Experiment",
+      description:
+        "Flutter app exploration for travel experiences and vibe-based product interactions, tied to broader Jaunt ideas.",
+      image: "/projects/jaunt-vibe.svg",
+      year: "2025",
+      link: "https://github.com/i-am-epic/jaunt-vibe",
+      previewUrl: "https://github.com/i-am-epic/jaunt-vibe",
+      tags: ["Cloud", "Backend"],
+    },
+    {
+      id: 10,
+      title: "ipodigest",
+      subtitle: "Python, Market Data, IPO Research",
+      description:
+        "A practical IPO-focused tool to aggregate and summarize information for faster investor research and monitoring.",
+      image: "/projects/ipodigest.svg",
+      year: "2024",
+      link: "https://github.com/i-am-epic/ipodigest",
+      previewUrl: "https://github.com/i-am-epic/ipodigest",
+      tags: ["Data", "Backend"],
+    },
+    {
+      id: 12,
+      title: "ABBReferralPortal",
+      subtitle: "Internal Product, Workflow Automation",
+      description:
+        "A practical internal referral workflow tool focused on structured submissions and team collaboration flow.",
+      image: "/projects/abb-referral.svg",
+      year: "2025",
+      link: "https://github.com/i-am-epic/ABBReferralPortal",
+      previewUrl: "https://github.com/i-am-epic/ABBReferralPortal",
+      tags: ["Backend", "Cloud"],
+    },
+    {
+      id: 13,
+      title: "TripPlanner",
+      subtitle: "Python, Route Planning, Travel Intelligence",
+      description:
+        "Travel planning engine exploration with itinerary logic and AI-friendly flow structure for recommendations.",
+      image: "/projects/tripplanner.svg",
+      year: "2025",
+      link: "https://github.com/i-am-epic",
+      previewUrl: "https://github.com/i-am-epic",
+      tags: ["AI", "Data", "Backend"],
+    },
+    {
+      id: 14,
+      title: "IPOscreener",
+      subtitle: "Python, Market Screening, Finance Analytics",
+      description:
+        "Early IPO screening utility that laid the foundation for deeper finance products like IPOSuite and related tools.",
+      image: "/projects/iposcreener.svg",
+      year: "2023",
+      link: "https://github.com/i-am-epic/IPOscreener",
+      previewUrl: "https://github.com/i-am-epic/IPOscreener",
+      tags: ["Data", "Backend"],
+    },
+    {
+      id: 15,
+      title: "Stock-investor-on-PE",
+      subtitle: "Python, Automation, Market Signals",
+      description:
+        "Automation project using valuation filters to identify stocks with favorable P/E opportunities in sector context.",
+      image: "/projects/stock-pe.svg",
       year: "2020",
-      link: "https://github.com/i-am-epic/SudokuSolver",
+      link: "https://github.com/i-am-epic/Stock-investor-on-PE",
+      previewUrl: "https://github.com/i-am-epic/Stock-investor-on-PE",
+      tags: ["Data", "Performance"],
+    },
+    {
+      id: 16,
+      title: "LearnMorse",
+      subtitle: "C++, Flutter-era Utility App",
+      description:
+        "A learning app built around Morse training patterns and quick practice loops; one of his early product experiments.",
+      image: "/projects/learnmorse.svg",
+      year: "2024",
+      link: "https://github.com/i-am-epic/LearnMorse",
+      previewUrl: "https://github.com/i-am-epic/LearnMorse",
+      tags: ["Backend", "Performance"],
     },
   ];
+  const [activeCategory, setActiveCategory] = useState<ProjectCategory>("All")
+  const categories: ProjectCategory[] = ["All", "AI", "Data", "Backend", "Cloud", "Performance"]
 
   const controls = useAnimation()
   const ref = useRef(null)
   const inView = useInView(ref, { once: true, amount: 0.1 })
+
+  const filteredProjects =
+    activeCategory === "All"
+      ? projects
+      : projects.filter((project) => project.tags.includes(activeCategory))
 
   useEffect(() => {
     if (inView) {
@@ -118,17 +255,32 @@ export default function Works() {
               <p className="text-xl text-muted-foreground mb-4">
                 A collection of my recent projects and collaborations. Each project represents a unique challenge and solution.
               </p>
+
+              <div className="mt-4 flex flex-wrap gap-2">
+                {categories.map((category) => (
+                  <button
+                    key={category}
+                    onClick={() => setActiveCategory(category)}
+                    className={`rounded-full border px-4 py-1.5 text-sm transition ${activeCategory === category
+                        ? "border-accent bg-accent text-accent-foreground"
+                        : "border-border text-muted-foreground hover:text-foreground"
+                      }`}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
             </motion.div>
           </BentoGridItem>
-          </BentoGrid>
-          <BentoGrid className="gap-2 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 py-2">
+        </BentoGrid>
+        <BentoGrid className="gap-2 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 py-2">
 
 
-          {projects.map((project) => (
-                      <BentoGridItem className="md:col-span-2 lg:col-span-3">
+          {filteredProjects.map((project) => (
+            <BentoGridItem key={project.id} className="md:col-span-2 lg:col-span-3">
 
               <ProjectCard project={project} />
-              </BentoGridItem>
+            </BentoGridItem>
 
           ))}
         </BentoGrid>

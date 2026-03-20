@@ -16,6 +16,7 @@ interface ProjectProps {
     image: string
     year: string
     link: string
+    tags?: string[]
   }
 }
 
@@ -46,6 +47,16 @@ export function ProjectCard({ project }: ProjectProps) {
 
             <div className="flex flex-col md:items-end gap-4 md:text-right">
               <p className="text-lg max-w-md">{project.description}</p>
+
+              {project.tags && project.tags.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {project.tags.map((tag) => (
+                    <span key={tag} className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
 
               <Link
                 href={project.link}

@@ -13,11 +13,12 @@ const Callback = () => {
     const state = url.searchParams.get("state");
     console.log("Received code:", code, "State:", state);
 
-    // Optionally, you can send the code to your backend API to exchange for tokens.
-    // For now, we simply redirect to home.
     if (code) {
-      router.push("/");
+      window.location.href = `/api/spotify/callback?code=${encodeURIComponent(code)}`;
+      return;
     }
+
+    router.push("/");
   }, [router]);
 
   return <div>Processing authentication...</div>;

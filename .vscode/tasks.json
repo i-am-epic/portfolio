@@ -1,0 +1,17 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "build-check",
+			"type": "shell",
+			"command": "pnpm build",
+			"isBackground": false
+		},
+		{
+			"label": "encrypt-knowledge-fresh",
+			"type": "shell",
+			"command": "node scripts/encrypt-profile-knowledge.cjs",
+			"isBackground": false
+		}
+	]
+}

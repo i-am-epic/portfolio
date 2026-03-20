@@ -1,3 +1,8 @@
+import { dirname, resolve } from "path"
+import { fileURLToPath } from "url"
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
+
 let userConfig = undefined
 try {
   userConfig = await import('./v0-user-next.config')
@@ -8,6 +13,7 @@ try {
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  outputFileTracingRoot: resolve(__dirname),
   sassOptions: {
     includePaths: ['./src/styles'],
   },
@@ -19,11 +25,6 @@ const nextConfig = {
   },
   images: {
     unoptimized: true,
-  },
-  experimental: {
-    webpackBuildWorker: true,
-    parallelServerBuildTraces: true,
-    parallelServerCompiles: true,
   },
 }
 

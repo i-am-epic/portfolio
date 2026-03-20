@@ -1,0 +1,16 @@
+<svg width="1200" height="700" viewBox="0 0 1200 700" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="tg" x1="0" y1="0" x2="1200" y2="700" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0B1D26"/>
+      <stop offset="1" stop-color="#153845"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="700" rx="36" fill="url(#tg)"/>
+  <rect x="130" y="120" width="940" height="460" rx="22" fill="#0E2530" stroke="#2E6A7B"/>
+  <rect x="170" y="160" width="860" height="52" rx="10" fill="#123342"/>
+  <text x="188" y="194" fill="#AFE7F8" font-family="Courier New, monospace" font-size="24">$ scan market --mode fast --sector all</text>
+  <text x="188" y="254" fill="#9ED0DE" font-family="Courier New, monospace" font-size="22">&gt; momentum: strong</text>
+  <text x="188" y="302" fill="#9ED0DE" font-family="Courier New, monospace" font-size="22">&gt; value opportunities: 17</text>
+  <text x="188" y="350" fill="#9ED0DE" font-family="Courier New, monospace" font-size="22">&gt; watchlist alerts: 8</text>
+  <text x="84" y="86" fill="#DDF8FF" font-family="Arial, sans-serif" font-size="34" font-weight="700">QUANTOS TERMINAL</text>
+</svg>

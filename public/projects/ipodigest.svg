@@ -1,0 +1,15 @@
+<svg width="1200" height="700" viewBox="0 0 1200 700" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="dg" x1="0" y1="0" x2="1200" y2="700" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#221E12"/>
+      <stop offset="1" stop-color="#4A3E1F"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="700" rx="36" fill="url(#dg)"/>
+  <rect x="190" y="130" width="820" height="440" rx="22" fill="#2A2415" stroke="#8D7A3D"/>
+  <rect x="240" y="190" width="620" height="44" rx="8" fill="#3A311B"/>
+  <rect x="240" y="254" width="720" height="36" rx="8" fill="#3A311B"/>
+  <rect x="240" y="310" width="680" height="36" rx="8" fill="#3A311B"/>
+  <rect x="240" y="366" width="540" height="36" rx="8" fill="#3A311B"/>
+  <text x="84" y="86" fill="#FFF6D9" font-family="Arial, sans-serif" font-size="34" font-weight="700">IPODIGEST</text>
+</svg>

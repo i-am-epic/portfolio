@@ -1,0 +1,14 @@
+<svg width="1200" height="700" viewBox="0 0 1200 700" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="pg" x1="0" y1="0" x2="1200" y2="700" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F2730"/>
+      <stop offset="1" stop-color="#225666"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="700" rx="36" fill="url(#pg)"/>
+  <path d="M150 510C320 350 470 350 620 500C770 650 920 560 1050 420" stroke="#8FE9FF" stroke-width="10" fill="none" stroke-linecap="round"/>
+  <circle cx="1050" cy="420" r="16" fill="#8FE9FF"/>
+  <rect x="220" y="170" width="300" height="170" rx="20" fill="#173B46"/>
+  <rect x="560" y="220" width="430" height="220" rx="20" fill="#173B46"/>
+  <text x="84" y="86" fill="#DDF7FF" font-family="Arial" font-size="36" font-weight="700">TRIPPLANNER</text>
+</svg>

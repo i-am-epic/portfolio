@@ -4,8 +4,6 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import { MobileMenu } from "./mobile-menu"
-import { BentoGrid } from "@/components/bento-grid"
-import { BentoGridItem } from "@/components/bento-grid-item"
 
 interface HeaderProps {
   activePage?: "home" | "works" | "contact"
@@ -31,14 +29,17 @@ export function Header({ activePage = "home" }: HeaderProps) {
         transition={{ duration: 0.5 }}
         className="px-[clamp(0px,2vw,16px)] py-2"
       >
-        <BentoGrid className={`md:grid-cols-[100%_00%] px-0 py-1.5 grid place-items-center bg-card rounded-full transition-all duration-300 ${scrolled ? "shadow-lg backdrop-blur-md bg-card/90" : ""}`}>
-          <BentoGridItem className="md:col-span-1 md:row-span-1 w-full px-6 flex items-center justify-between">
+        <div
+          className={`w-full rounded-full border border-border bg-card px-6 py-3 transition-all duration-300 ${scrolled ? "bg-card/90 shadow-lg backdrop-blur-md" : ""
+            }`}
+        >
+          <div className="flex items-center justify-between">
             {/* Logo */}
             <Link href="/" className="text-xl font-medium">
               nikhil a v.
             </Link>
             {/* Navigation Links */}
-            <nav className="hidden md:flex space-x-10">
+            <nav className="hidden md:flex items-center gap-8">
               {["home", "works", "contact"].map((page) => (
                 <Link
                   key={page}
@@ -54,6 +55,13 @@ export function Header({ activePage = "home" }: HeaderProps) {
                   )}
                 </Link>
               ))}
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new Event("open-command-palette"))}
+                className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground transition hover:text-foreground"
+              >
+                Cmd+K
+              </button>
             </nav>
             {/* Mobile Menu Button */}
             <motion.button
@@ -66,8 +74,8 @@ export function Header({ activePage = "home" }: HeaderProps) {
                 <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
               </svg>
             </motion.button>
-          </BentoGridItem>
-        </BentoGrid>
+          </div>
+        </div>
       </motion.header>
 
       <AnimatePresence>

@@ -1,0 +1,14 @@
+<svg width="1200" height="675" viewBox="0 0 1200 675" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="675" fill="#0B1220"/>
+  <rect x="40" y="40" width="1120" height="595" rx="28" fill="#101827" stroke="#334155"/>
+  <rect x="100" y="130" width="220" height="100" rx="14" fill="#1D4ED8"/>
+  <rect x="360" y="130" width="220" height="100" rx="14" fill="#0891B2"/>
+  <rect x="620" y="130" width="220" height="100" rx="14" fill="#7C3AED"/>
+  <rect x="880" y="130" width="220" height="100" rx="14" fill="#EA580C"/>
+  <rect x="100" y="280" width="220" height="100" rx="14" fill="#16A34A"/>
+  <rect x="360" y="280" width="220" height="100" rx="14" fill="#DC2626"/>
+  <rect x="620" y="280" width="220" height="100" rx="14" fill="#CA8A04"/>
+  <rect x="880" y="280" width="220" height="100" rx="14" fill="#2563EB"/>
+  <text x="80" y="530" fill="#F8FAFC" font-size="56" font-family="Arial, sans-serif" font-weight="700">Nik DevTools</text>
+  <text x="80" y="585" fill="#CBD5E1" font-size="30" font-family="Arial, sans-serif">100+ developer utilities in one workspace</text>
+</svg>

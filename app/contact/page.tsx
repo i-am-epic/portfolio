@@ -146,6 +146,46 @@ export default function Contact() {
                 </div>
               </motion.div>
             </BentoGridItem>
+
+            <BentoGridItem className="md:col-span-2 md:row-span-1">
+              <motion.div
+                variants={{
+                  hidden: { opacity: 0, y: 20 },
+                  visible: {
+                    opacity: 1,
+                    y: 0,
+                    transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.35 },
+                  },
+                }}
+                className="h-full p-8 md:p-10"
+              >
+                <h2 className="text-2xl font-bold mb-2">Life x Build Flow</h2>
+                <p className="text-sm text-muted-foreground mb-6">
+                  A quick map of how Nikhil's journey evolved across finance, engineering, startups, and AI systems.
+                </p>
+
+                <div className="grid gap-3 md:grid-cols-5">
+                  {[
+                    { title: "Finance Roots", sub: "Stock-market exposure + NISM" },
+                    { title: "CS Core", sub: "DSATM CSE + systems foundation" },
+                    { title: "ABB Build", sub: "ETL, telemetry, distributed data" },
+                    { title: "Startup Mode", sub: "40+ APIs, product from zero to ship" },
+                    { title: "AI + Ventures", sub: "RAG, agents, Quantos, Helios" },
+                  ].map((step, index) => (
+                    <div key={step.title} className="relative rounded-2xl border border-border bg-card-hover/50 p-4">
+                      <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">0{index + 1}</p>
+                      <p className="mt-2 text-sm font-semibold text-foreground">{step.title}</p>
+                      <p className="mt-1 text-xs leading-5 text-muted-foreground">{step.sub}</p>
+                      {index < 4 ? (
+                        <span className="pointer-events-none absolute -right-2 top-1/2 hidden -translate-y-1/2 text-accent md:block">
+                          →
+                        </span>
+                      ) : null}
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            </BentoGridItem>
           </BentoGrid>
         </motion.div>
       </div>

@@ -1,0 +1,12 @@
+<svg width="1200" height="700" viewBox="0 0 1200 700" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="vg" x1="0" y1="0" x2="1200" y2="700" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#10211B"/>
+      <stop offset="1" stop-color="#1E3F31"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="700" rx="36" fill="url(#vg)"/>
+  <path d="M600 150L840 250V410C840 515 760 594 600 640C440 594 360 515 360 410V250L600 150Z" fill="#1D4E3B" stroke="#62B791" stroke-width="8"/>
+  <path d="M485 390L555 460L715 300" stroke="#96E8C1" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="84" y="86" fill="#DFFFF0" font-family="Arial, sans-serif" font-size="36" font-weight="700">HEDGE VAULT RISK ENGINE</text>
+</svg>

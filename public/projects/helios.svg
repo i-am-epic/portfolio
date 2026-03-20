@@ -1,0 +1,14 @@
+<svg width="1200" height="700" viewBox="0 0 1200 700" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="hg" x1="0" y1="0" x2="1200" y2="700" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#22122C"/>
+      <stop offset="1" stop-color="#3C1E58"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="700" rx="36" fill="url(#hg)"/>
+  <circle cx="250" cy="350" r="130" fill="#6A3FA6" opacity="0.35"/>
+  <circle cx="920" cy="350" r="130" fill="#6A3FA6" opacity="0.35"/>
+  <rect x="320" y="198" width="560" height="304" rx="22" fill="#1B1024" stroke="#8A62C8"/>
+  <path d="M380 350h90l35-78 60 156 42-106h72" stroke="#CFA8FF" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="86" y="86" fill="#F4E9FF" font-family="Arial, sans-serif" font-size="36" font-weight="700">HELIOS SELF-HEALING CODE</text>
+</svg>

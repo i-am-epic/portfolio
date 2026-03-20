@@ -35,9 +35,9 @@ export function Spiral() {
         <defs>
           {/* Gradient to simulate a calligraphic stroke that tapers */}
           <linearGradient id="gradStroke" gradientUnits="userSpaceOnUse" x1="40" y1="75" x2="160" y2="75">
-            <stop offset="0%" stop-color="white" stop-opacity="1" />
-            <stop offset="50%" stop-color="white" stop-opacity="0.5" />
-            <stop offset="100%" stop-color="white" stop-opacity="0.1" />
+            <stop offset="0%" stopColor="white" stopOpacity="1" />
+            <stop offset="50%" stopColor="white" stopOpacity="0.5" />
+            <stop offset="100%" stopColor="white" stopOpacity="0.1" />
           </linearGradient>
         </defs>
         {/*

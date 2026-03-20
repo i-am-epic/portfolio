@@ -1,365 +1,214 @@
 "use client"
 
-import { useEffect, useRef } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { motion, useInView, useAnimation } from "framer-motion"
-import { Spiral } from "@/components/spiral"
+import { motion } from "framer-motion"
+import { Header } from "@/components/header"
 import { BentoGrid } from "@/components/bento-grid"
 import { BentoGridItem } from "@/components/bento-grid-item"
 import { SocialLink } from "@/components/social-link"
-import { Header } from "@/components/header"
-import ReviewCarousel from "@/components/review"
 import AnimatedTitle from "@/components/animate-title"
-import SpotifyGuessSong from "@/components/spotifysong"
+import ReviewCarousel from "@/components/review"
 import CurrentlyPlayingCard from "@/components/currentplaying"
-import SpotifyGameGrid from "@/components/jamming"
+
+const previewProjects = [
+    { title: "Quantos", subtitle: "Private finance terminal (WIP)", href: "https://github.com/i-am-epic" },
+    { title: "Helios", subtitle: "Self-healing code project (WIP)", href: "https://github.com/i-am-epic" },
+    { title: "TailorPro", subtitle: "Tailor workflow app", href: "https://github.com/i-am-epic/TailorPro" },
+    { title: "Family Tree", subtitle: "Graph-based hereditary explorer", href: "https://family-tree-black-nine.vercel.app/" },
+    { title: "Nik DevTools", subtitle: "100+ daily dev tools", href: "https://nikdevtools.vercel.app/" },
+]
+
+const impactStats = [
+    { value: "3+", label: "years of hands-on software experience" },
+    { value: "100%", label: "data consistency shipped in production" },
+    { value: "70%", label: "sync latency cut on core data flows" },
+    { value: "1.1M+", label: "records handled per ingestion batch" },
+]
+
+const patchNotes = [
+    "Owns high-volume data exports + ETL at ABB. 1.1M+ records, no drama.",
+    "Built AI query gen for KQL, SQL, and GraphQL instead of suffering it manually.",
+    "Founding-team energy: benchmarks LLMs, ships product, optimizes the ugly bits at 11pm.",
+    "Visited Thailand, Malaysia, and Sri Lanka. Travelled Northeast India for 30 days because why not.",
+    "Currently obsessed with simulation projects. Physical systems, agent models, market sims — if you have ideas, ping him.",
+    "Loves new tech like a kid in a toy store. New framework? Already has a side project planned.",
+]
+
+const characterBuild = [
+    { label: "Data Systems", score: "SS" },
+    { label: "LLMs + RAG", score: "S" },
+    { label: "Fast shipping", score: "S" },
+    { label: "Founder energy", score: "S" },
+]
 
 export default function Home() {
-  const controls = useAnimation()
-  const ref = useRef(null)
-  const inView = useInView(ref, { once: true, amount: 0.1 })
+    return (
+        <div className="min-h-screen bg-background text-foreground">
+            <div className="container mx-auto py-8">
+                <Header activePage="home" />
 
-  useEffect(() => {
-    if (inView) {
-      controls.start("visible")
-    }
-  }, [controls, inView])
+                <BentoGrid className="md:grid-cols-5">
+                    <BentoGridItem className="md:col-span-3 min-h-[460px] p-8 md:p-10">
+                        <div className="flex h-full flex-col justify-start pt-2">
+                            <p className="mb-2 text-sm uppercase tracking-[0.2em] text-muted-foreground">AI x Data x Product</p>
+                            <h1 className="text-gradient-brand text-4xl font-bold leading-[1.08] md:text-6xl">Nikhil A V</h1>
+                            <div className="mt-2 text-2xl font-semibold md:text-3xl">
+                                <AnimatedTitle />
+                            </div>
+                            <p className="mt-4 max-w-xl text-base text-muted-foreground md:text-lg">
+                                Building fast data systems, market intelligence products, and AI workflows that actually ship.
+                            </p>
+                            <div className="mt-5 flex flex-wrap gap-2">
+                                <span className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground">3+ years experience</span>
+                                <span className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground">ABB</span>
+                                <span className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground">ABB India</span>
+                                <span className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground">Startup founding team</span>
+                                <span className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground">ETL at scale</span>
+                                <span className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground">RAG systems</span>
+                                <span className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground">Finance tools</span>
+                            </div>
+                            <p className="mt-3 text-sm text-muted-foreground">
+                                Building at ABB, previously at ABB India, and shipping startup products end-to-end. Always open to strong cofounder-level collaborators.
+                            </p>
+                            <div className="mt-6 flex flex-wrap gap-3 pb-2">
+                                <Link
+                                    href="mailto:niknikhilav@gmail.com"
+                                    className="rounded-full bg-accent px-5 py-2 text-sm font-medium text-accent-foreground transition hover:bg-accent/90"
+                                >
+                                    Let us build together
+                                </Link>
+                                <Link
+                                    href="/works"
+                                    className="rounded-full border border-border px-5 py-2 text-sm text-muted-foreground transition hover:text-foreground"
+                                >
+                                    See case studies
+                                </Link>
+                            </div>
+                        </div>
+                    </BentoGridItem>
 
-  return (
-    <div className="min-h-screen bg-background text-foreground">
-      <div className="container mx-auto py-8">
-        <Header activePage="home" />
+                    <BentoGridItem className="relative md:col-span-2 overflow-hidden">
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(255,122,72,0.16),transparent_38%),radial-gradient(circle_at_80%_20%,rgba(119,166,255,0.1),transparent_28%)]" />
+                        <Image
+                            src="/nik.png"
+                            alt="Nikhil"
+                            fill
+                            className="object-cover object-top scale-[1.03] grayscale-[15%] contrast-105 brightness-[0.92]"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                        <div className="absolute left-4 top-4 rounded-2xl border border-border bg-card/70 px-4 py-3 text-xs backdrop-blur-md">
+                            <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Current build</p>
+                            <p className="mt-1 text-sm font-medium text-foreground">AI tools, data systems, and product experiments</p>
+                        </div>
+                        <div className="absolute bottom-4 left-4 rounded-full border border-border bg-card/80 px-4 py-2 text-xs backdrop-blur-md">
+                            Bengaluru • Open to ambitious products
+                        </div>
+                    </BentoGridItem>
+                </BentoGrid>
 
-        {/* Bento Grid Layout */}
-        <motion.div
-          ref={ref}
-          initial="hidden"
-          animate={controls}
-          variants={{
-            hidden: { opacity: 0 },
-            visible: {
-              opacity: 1,
-              transition: { staggerChildren: 0.2 },
-            },
-          }}
-        >
-          <BentoGrid className="md:grid-cols-[59.8%_39.6%] auto-rows-[minmax(0,380px)]">
-            {/* Profile Section */}
-            <BentoGridItem className="md:col-span-1 md:row-span-1">
-              <motion.div
-                variants={{
-                  hidden: { opacity: 0, y: 20 },
-                  visible: {
-                    opacity: 1,
-                    y: 0,
-                    transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] },
-                  },
-                }}
-                className="h-full flex flex-col items-center justify-center md:p-12 text-center"
-              >
-                {/* Image Wrapper */}
-                <div className="mb-3 w-32 h-32   relative mx-auto md:mx-0 overflow-hidden rounded-full">
-                  <motion.div
-                    whileHover={{ scale: 1.2 }}
-                    transition={{ duration: 0.5, ease: "easeInOut" }}
-                    className="relative w-full h-full"
-                  >
-                    <Image
-                      src="/nik.jpeg"
-                      alt="Nikhil A V"
-                      fill
-                      className="object-cover rounded-full"
-                    />
-                  </motion.div>
-                </div>
+                <BentoGrid className="py-2 md:grid-cols-5">
+                    <BentoGridItem className="md:col-span-3 min-h-[360px] p-8">
+                        <h2 className="mb-4 text-3xl font-bold">Project Highlights</h2>
+                        <p className="mb-5 text-sm text-muted-foreground">Recent builds and what is shipping next</p>
+                        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                            {previewProjects.map((item) => (
+                                <a
+                                    key={item.title}
+                                    href={item.href}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="rounded-2xl border border-border bg-card-hover p-4 transition hover:-translate-y-1"
+                                >
+                                    <p className="text-lg font-semibold">{item.title}</p>
+                                    <p className="text-sm text-muted-foreground">{item.subtitle}</p>
+                                </a>
+                            ))}
+                        </div>
+                    </BentoGridItem>
 
-                {/* Text Content */}
-                <h1 className="text-4xl md:text-5xl font-bold mb-4">Nikhil A V</h1>
+                    <BentoGridItem className="md:col-span-2 p-8">
+                        <h2 className="mb-3 text-3xl font-bold">Builder Quest</h2>
+                        <p className="mb-4 text-sm text-muted-foreground">Gamified roadmap for this portfolio</p>
+                        <div className="space-y-3">
+                            <div>
+                                <p className="mb-1 text-xs text-muted-foreground">FamilyTree v2</p>
+                                <div className="h-2 rounded-full bg-card-hover">
+                                    <div className="h-2 w-[74%] rounded-full bg-accent" />
+                                </div>
+                            </div>
+                            <div>
+                                <p className="mb-1 text-xs text-muted-foreground">TailorPro polish</p>
+                                <div className="h-2 rounded-full bg-card-hover">
+                                    <div className="h-2 w-[66%] rounded-full bg-accent" />
+                                </div>
+                            </div>
+                            <div>
+                                <p className="mb-1 text-xs text-muted-foreground">NAVI memory upgrades</p>
+                                <div className="h-2 rounded-full bg-card-hover">
+                                    <div className="h-2 w-[61%] rounded-full bg-accent" />
+                                </div>
+                            </div>
+                        </div>
+                    </BentoGridItem>
+                </BentoGrid>
 
-                <p className="text-3xl md:text-3xl font-bold mb-1"></p>
-                <AnimatedTitle />
+                <BentoGrid className="py-2 md:grid-cols-3">
+                    <BentoGridItem className="p-8">
+                        <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">Impact board</p>
+                        <div className="mt-5 grid grid-cols-2 gap-4">
+                            {impactStats.map((item) => (
+                                <div key={item.label} className="rounded-2xl border border-border bg-card-hover/60 p-4">
+                                    <p className="bg-gradient-to-br from-orange-300 to-blue-400 bg-clip-text text-2xl font-bold text-transparent md:text-3xl">{item.value}</p>
+                                    <p className="mt-2 text-xs leading-5 text-muted-foreground">{item.label}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </BentoGridItem>
 
-                <p className="text-xl md:text-xl font-bold text-muted-foreground">
-                  currently SDE at ABB.
-                </p>
-              </motion.div>
-            </BentoGridItem>
+                    <BentoGridItem className="p-8">
+                        <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">Patch notes</p>
+                        <div className="mt-5 space-y-2 overflow-y-auto">
+                            {patchNotes.map((note, index) => (
+                                <div key={note} className="rounded-2xl border border-border bg-card-hover/50 px-4 py-3 text-sm text-foreground/90">
+                                    <span className="mr-2 text-accent">0{index + 1}.</span>
+                                    {note}
+                                </div>
+                            ))}
+                        </div>
+                    </BentoGridItem>
 
-            {/* CTA Section */}
-            <BentoGridItem className="md:col-span-1 md:row-span-1">
-              <motion.div
-                variants={{
-                  hidden: { opacity: 0, y: 20 },
-                  visible: {
-                    opacity: 1,
-                    y: 0,
-                    transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.2 },
-                  },
-                }}
-                className="h-full flex flex-col items-center justify-center p-8 md:p-12 text-center"
-              >
-                <motion.div
-                  whileHover={{ rotate: 360 }}
-                  transition={{ duration: 0.2, ease: "easeInOut" }}
-                  className="mb-6"
-                >
-                  <Spiral />
-                </motion.div>
-                <h2 className="text-4xl md:text-4xl font-bold mb-4">Have a project</h2>
-                <h2 className="text-3xl md:text-3xl font-bold mb-8">in mind?</h2>
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.98 }}
-                  transition={{ duration: 0.3 }}
-                  className="p-2"
-                >
-                  <Link
-                    href="mailto:niknikhilav@gmail.com"
-                    className="flex justify-center  bg-accent text-accent-foreground rounded-full text-[3vw] sm:text-xl font-medium text-center hover:bg-accent/90 transition-colors py-2 px-4"
+                    <BentoGridItem className="p-8">
+                        <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">Character build</p>
+                        <div className="mt-5 space-y-3">
+                            {characterBuild.map((item) => (
+                                <div key={item.label} className="flex items-center justify-between rounded-2xl border border-border px-4 py-3">
+                                    <span className="text-sm text-foreground">{item.label}</span>
+                                    <span className="rounded-full bg-card-hover px-3 py-1 text-xs font-medium text-muted-foreground">{item.score}</span>
+                                </div>
+                            ))}
+                        </div>
+                        <p className="mt-4 text-sm text-muted-foreground">
+                            Calm in prod, dangerous near a slow batch job, and suspiciously willing to build side quests after work.
+                        </p>
+                    </BentoGridItem>
+                </BentoGrid>
 
-                  >
-                    niknikhilav@gmail.com
-                  </Link>
-                </motion.div>
-              </motion.div>
-            </BentoGridItem>
-          </BentoGrid>
+                <BentoGrid className="py-2 md:grid-cols-2">
+                    <ReviewCarousel />
+                    <CurrentlyPlayingCard />
 
-          <BentoGrid className="md:grid-cols-[39.6%_59.8%] py-2">
-
-            {/* Social Links Section */}
-            <BentoGridItem className="overflow-x-auto scrollbar-hide md:col-span-2 bg-black rounded-xl">
-              <motion.div
-                initial="hidden"
-                animate="visible"
-                className="flex gap-4 "
-              >
-                {/* LinkedIn */}
-                <motion.div
-                  variants={{
-                    hidden: { opacity: 0, x: -200 },
-                    visible: { opacity: 1, x: 0 },
-                  }}
-                  transition={{ duration: 0.8, delay: 0.8 }}
-                  className="flex-1 bg-card text-foreground rounded-md"
-                >
-                  <SocialLink href="https://linkedin.com/in/nikhilav" label="linkedin." />
-                </motion.div>
-                {/* GitHub */}
-                <motion.div
-                  variants={{
-                    hidden: { opacity: 0, x: -100 },
-                    visible: { opacity: 1, x: 0 },
-                  }}
-                  transition={{ duration: 0.8, delay: 0.4 }}
-                  className="flex-1 bg-card text-foreground rounded-md"
-                >
-                  <SocialLink href="https://github.com/nikhilav" label="github." />
-                </motion.div>
-                {/* leetcode */}
-                <motion.div
-                  variants={{
-                    hidden: { opacity: 0, x: 0 },
-                    visible: { opacity: 1, x: 0 },
-                  }}
-                  transition={{ duration: 0.8, delay: 0.2 }}
-                  className="flex-1 bg-card text-foreground rounded-md"
-                >
-                  <SocialLink href="https://leetcode.com/u/i-am-epic/" label="leetcode." />
-                </motion.div>
-                {/* Twitter */}
-                <motion.div
-                  variants={{
-                    hidden: { opacity: 0, x: 100 },
-                    visible: { opacity: 1, x: 0 },
-                  }}
-                  transition={{ duration: 0.8, delay: 0.4 }}
-                  className="flex-1 bg-card text-foreground rounded-md"
-                >
-                  <SocialLink href="https://twitter.com/nikhilav" label="twitter." />
-                </motion.div>
-                {/* Unsplash */}
-                <motion.div
-                  variants={{
-                    hidden: { opacity: 0, x: 200 },
-                    visible: { opacity: 1, x: 0 },
-                  }}
-                  transition={{ duration: 0.8, delay: 0.8 }}
-                  className="flex-1 bg-card text-foreground rounded-md"
-                >
-                  <SocialLink href="https://www.instagram.com/nikboson" label="instagram." />
-                </motion.div>
-              </motion.div>
-            </BentoGridItem>
-
-            {/* About Section */}
-            <BentoGridItem className="md:col-span-1 md:row-span-1">
-              <motion.div
-                variants={{
-                  hidden: { opacity: 0, y: 20 },
-                  visible: {
-                    opacity: 1,
-                    y: 0,
-                    transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.4 },
-                  },
-                }}
-                className="h-full flex flex-col justify-center p-8 md:p-12"
-              >
-                <h2 className="text-4xl md:text-5xl font-bold ">My Stack</h2>
-                <p className="text-xl md:text-xl  text-muted-foreground mb-6">
-                  Rated by Me.
-                </p>
-                <ul className="text-l text-muted-foreground space-y-3">
-                  <li className="flex justify-between w-full">
-                    <span>Python & C#</span> <span>★★★★★</span>
-                  </li>
-                  <li className="flex justify-between w-full">
-                    <span>Data Engineering</span> <span>★★★★★</span>
-                  </li>
-                  <li className="flex justify-between w-full">
-                    <span>Azure & AWS</span> <span>★★★★☆</span>
-                  </li>
-                  <li className="flex justify-between w-full">
-                    <span>ML & AI</span> <span>★★★★☆</span>
-                  </li>
-                  <li className="flex justify-between w-full">
-                    <span>K8s & Infra</span> <span>★★★★☆</span>
-                  </li>
-                  <li className="flex justify-between w-full">
-                    <span>React & Next.js</span> <span>★★★☆☆</span>
-                  </li>
-                </ul>
-              </motion.div>
-            </BentoGridItem>
-
-
-            <BentoGridItem className="md:col-span-1 md:row-span-1 py-2">
-              <motion.div
-                variants={{
-                  hidden: { opacity: 0, y: 20 },
-                  visible: {
-                    opacity: 1,
-                    y: 0,
-                    transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.4 },
-                  },
-                }}
-                className="h-full flex flex-col justify-center p-8 md:p-12"
-              >
-                <h2 className="text-4xl md:text-5xl font-bold mb-4">Who Am I?</h2>
-                <p className="text-xl text-muted-foreground">
-
-                  A Data Engineer by day, an ML enthusiast by night, and a guy who has spent way too much time debugging things that should "just work."
-                  If you love scalable systems, AI-powered data workflows, we’ll get along just fine.
-                </p>
-              </motion.div>
-            </BentoGridItem>
-
-            <ReviewCarousel />
-            {/* Portfolio Images */}
-            <BentoGridItem className="md:col-span-2 md:row-span-1 h-[300px]">
-              <motion.div
-                variants={{
-                  hidden: { opacity: 0, y: 20 },
-                  visible: {
-                    opacity: 1,
-                    y: 0,
-                    transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.5 },
-                  },
-                }}
-                className="grid grid-cols-2 gap-2 h-full"
-              >
-                {/* First Image - Links to External URL */}
-                <a
-                  href="https://example.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="relative bg-muted rounded-3xl overflow-hidden block"
-                >
-                  <motion.div whileHover={{ scale: 1.3 }} transition={{ duration: 0.5 }}>
-                    <Image
-                      src="/resume.avif"
-                      alt="resume"
-                      width={600}
-                      height={300}
-                      className="w-full h-full object-cover filter grayscale transition-transform duration-700 hover:scale-[1.4] hover:filter-none"
-                    />
-                  </motion.div>
-
-
-                  {/* Centered Download Button - Now a Button Instead of <a> */}
-                  <div
-                    onClick={() => window.open("https://www.overleaf.com/download/project/65df30e8fae76cd2408eb935/build/195d1b5085f-bafb1411c1452638/output/output.pdf", "_blank")}
-                    className="absolute inset-0 flex items-center justify-center bg-black/50 text-white text-lg font-medium rounded-lg px-2 py-1 opacity-0 hover:opacity-100 transition-opacity duration-300"
-                  >
-                    Download Resume
-                  </div>
-                </a>
-                {/* Second Image - Links to Works Page */}
-                <Link
-                  href="/works"
-                  className="relative bg-muted rounded-3xl overflow-hidden block"
-                >
-                  <motion.div
-                    initial={{ scale: 1.3 }} // Default scale to 1.3
-                    whileHover={{ scale: 1.4 }} // Scale slightly more on hover
-                    transition={{ duration: 0.5 }}
-                  >
-                    <Image
-                      src="/project.jpg"
-                      alt="projects"
-                      width={600}
-                      height={300}
-                      className="w-full h-full object-cover filter grayscale transition-transform duration-700 hover:scale-[1.4] hover:filter-none"
-                    />
-                  </motion.div>
-
-                  {/* Overlay Button for Navigation */}
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-white text-lg font-medium rounded-lg px-6 py-3 opacity-0 hover:opacity-100 transition-opacity duration-300">
-                    Projects
-                  </div>
-                </Link>
-              </motion.div>
-            </BentoGridItem>
-          </BentoGrid>
-
-          <BentoGrid className="py-2  md:grid-cols-[70%_30%]">
-
-            <BentoGridItem className="md:col-span-1 md:row-span-1 py-2">
-              <motion.div
-                variants={{
-                  hidden: { opacity: 0, y: 20 },
-                  visible: {
-                    opacity: 1,
-                    y: 0,
-                    transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.5 },
-                  },
-                }}
-                className="h-full flex flex-col justify-center p-8 md:p-12"
-              >
-                <SpotifyGameGrid />
-              </motion.div>
-            </BentoGridItem>
-            <CurrentlyPlayingCard />
-            <BentoGridItem className="w-full md:col-span-2 md:row-span-2 py-2">
-              <SpotifyGuessSong />
-            </BentoGridItem>
-            {/* Footer */}
-            <BentoGridItem className="md:col-span-2 md:row-span-1">
-              <motion.div
-                variants={{
-                  hidden: { opacity: 0 },
-                  visible: { opacity: 1, transition: { duration: 0.8, delay: 0.6 } },
-                }}
-                className="h-full flex flex-col md:flex-row justify-between items-center  px-10 py-2"
-              >
-                <div className="text-lg font-medium mb-4 md:mb-0">nikhil av</div>
-                <div className="text-muted-foreground">all rights reserved. © 2025</div>
-              </motion.div>
-            </BentoGridItem>
-          </BentoGrid>
-        </motion.div>
-      </div>
-    </div>
-  )
+                    <BentoGridItem className="md:col-span-2 bg-black rounded-xl">
+                        <div className="flex flex-wrap items-center justify-center gap-2 p-3">
+                            <div className="w-[180px]"><SocialLink href="https://linkedin.com/in/nikhilav" label="linkedin." /></div>
+                            <div className="w-[180px]"><SocialLink href="https://github.com/nikhilav" label="github." /></div>
+                            <div className="w-[180px]"><SocialLink href="https://leetcode.com/u/i-am-epic/" label="leetcode." /></div>
+                            <div className="w-[180px]"><SocialLink href="https://twitter.com/nikhilav" label="twitter." /></div>
+                            <div className="w-[180px]"><SocialLink href="https://www.instagram.com/nikboson" label="instagram." /></div>
+                        </div>
+                    </BentoGridItem>
+                </BentoGrid>
+            </div>
+        </div>
+    )
 }

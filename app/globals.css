@@ -25,9 +25,9 @@
 
   --radius: 1.5rem;
 
-  --lg-bg: rgba(16, 20, 32, 0.34);
-  --lg-overlay: rgba(255, 255, 255, 0.08);
-  --lg-highlight: rgba(255, 255, 255, 0.3);
+  --lg-bg: rgba(16, 20, 32, 0.22);
+  --lg-overlay: rgba(255, 255, 255, 0.06);
+  --lg-highlight: rgba(255, 255, 255, 0.26);
 }
 
 body {
@@ -106,13 +106,15 @@ h6 {
   position: relative;
   overflow: hidden;
   border-radius: 1.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.13);
   background: var(--lg-bg);
   box-shadow:
     0 24px 70px -28px rgba(0, 0, 0, 0.75),
-    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.13),
     inset 0 -1px 0 rgba(255, 255, 255, 0.04);
   isolation: isolate;
+  --mx: 50%;
+  --my: 50%;
 }
 
 .liquid-glass-filter,
@@ -126,15 +128,15 @@ h6 {
 
 .liquid-glass-filter {
   z-index: 0;
-  backdrop-filter: blur(14px) saturate(1.25) brightness(0.95);
+  backdrop-filter: blur(16px) saturate(1.22) brightness(1.02);
 }
 
 .liquid-glass-overlay {
   z-index: 1;
   background:
-    radial-gradient(circle at 16% 14%, rgba(255, 255, 255, 0.14), transparent 32%),
-    radial-gradient(circle at 82% 84%, rgba(137, 181, 255, 0.12), transparent 36%),
-    linear-gradient(160deg, var(--lg-overlay), rgba(20, 24, 34, 0.28));
+    radial-gradient(circle at var(--mx) var(--my), rgba(255, 255, 255, 0.18), transparent 32%),
+    radial-gradient(circle at 82% 84%, rgba(137, 181, 255, 0.1), transparent 36%),
+    linear-gradient(160deg, var(--lg-overlay), rgba(20, 24, 34, 0.2));
 }
 
 .liquid-glass-specular {
@@ -151,9 +153,10 @@ h6 {
   background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.38) 45%, transparent 100%);
   filter: blur(12px);
   mix-blend-mode: screen;
-  opacity: 0.38;
+  opacity: 0.34;
   animation: glass-drift 12s ease-in-out infinite alternate;
-  transition: transform 500ms ease, opacity 350ms ease;
+  transform: translate3d(calc((var(--mx) - 50%) * 0.35), calc((var(--my) - 50%) * 0.15), 0);
+  transition: transform 220ms ease, opacity 280ms ease;
 }
 
 .liquid-glass-specular::after {
@@ -172,7 +175,7 @@ h6 {
 }
 
 .liquid-glass:hover .liquid-glass-specular::before {
-  opacity: 0.82;
-  transform: translate3d(44%, 6%, 0) rotate(-10deg);
+  opacity: 0.76;
+  transform: translate3d(calc((var(--mx) - 50%) * 0.65), calc((var(--my) - 50%) * 0.25), 0) rotate(-6deg);
 }
 

@@ -17,6 +17,7 @@ const previewProjects = [
     { title: "TailorPro", subtitle: "Tailor workflow app", href: "https://github.com/i-am-epic/TailorPro" },
     { title: "Family Tree", subtitle: "Graph-based hereditary explorer", href: "https://family-tree-black-nine.vercel.app/" },
     { title: "Nik DevTools", subtitle: "100+ daily dev tools", href: "https://nikdevtools.vercel.app/" },
+    { title: "NAVI RAG", subtitle: "Portfolio memory + grounded chat", href: "https://github.com/i-am-epic" },
 ]
 
 const impactStats = [
@@ -24,6 +25,10 @@ const impactStats = [
     { value: "100%", label: "data consistency shipped in production" },
     { value: "70%", label: "sync latency cut on core data flows" },
     { value: "1.1M+", label: "records handled per ingestion batch" },
+    { value: "40+", label: "knowledge chunks powering portfolio RAG" },
+    { value: "5", label: "countries travelled across Asia" },
+    { value: "100+", label: "dev utilities shipped on Nik DevTools" },
+    { value: "24/7", label: "shipping mindset during product pushes" },
 ]
 
 const patchNotes = [
@@ -40,6 +45,9 @@ const characterBuild = [
     { label: "LLMs + RAG", score: "S" },
     { label: "Fast shipping", score: "S" },
     { label: "Founder energy", score: "S" },
+    { label: "Product intuition", score: "S" },
+    { label: "Debugging under pressure", score: "SS" },
+    { label: "Design taste in progress", score: "A+" },
 ]
 
 export default function Home() {
@@ -147,6 +155,18 @@ export default function Home() {
                                 <p className="mb-1 text-xs text-muted-foreground">NAVI memory upgrades</p>
                                 <div className="h-2 rounded-full bg-card-hover">
                                     <div className="h-2 w-[61%] rounded-full bg-accent" />
+                                </div>
+                            </div>
+                            <div>
+                                <p className="mb-1 text-xs text-muted-foreground">Quantos alpha dashboard</p>
+                                <div className="h-2 rounded-full bg-card-hover">
+                                    <div className="h-2 w-[57%] rounded-full bg-accent" />
+                                </div>
+                            </div>
+                            <div>
+                                <p className="mb-1 text-xs text-muted-foreground">Helios evaluator loop</p>
+                                <div className="h-2 rounded-full bg-card-hover">
+                                    <div className="h-2 w-[48%] rounded-full bg-accent" />
                                 </div>
                             </div>
                         </div>

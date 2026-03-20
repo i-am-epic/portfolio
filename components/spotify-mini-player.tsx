@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { CSSProperties, MouseEvent, useEffect, useMemo, useState } from "react"
 import Image from "next/image"
 import { ExternalLink, PauseCircle, PlayCircle, SkipBack, SkipForward } from "lucide-react"
 
@@ -69,13 +69,39 @@ export function SpotifyMiniPlayer() {
     const artist = song?.item?.artists?.[0]?.name || "Spotify"
     const url = song?.item?.external_urls?.spotify || "https://open.spotify.com"
 
+    const handlePointerMove = (event: MouseEvent<HTMLAnchorElement>) => {
+        const rect = event.currentTarget.getBoundingClientRect()
+        const x = ((event.clientX - rect.left) / rect.width) * 100
+        const y = ((event.clientY - rect.top) / rect.height) * 100
+        event.currentTarget.style.setProperty("--mx", `${x.toFixed(2)}%`)
+        event.currentTarget.style.setProperty("--my", `${y.toFixed(2)}%`)
+    }
+
+    const handlePointerLeave = (event: MouseEvent<HTMLAnchorElement>) => {
+        event.currentTarget.style.setProperty("--mx", "50%")
+        event.currentTarget.style.setProperty("--my", "50%")
+    }
+
+    const glassStyle: CSSProperties = {
+        position: "fixed",
+        left: "50%",
+        transform: "translateX(-50%)",
+        bottom: 16,
+        top: "auto",
+        right: "auto",
+        ["--mx" as string]: "50%",
+        ["--my" as string]: "50%",
+    }
+
     return (
         <a
             href={url}
             target="_blank"
             rel="noopener noreferrer"
             className="liquid-glass z-[120] w-[min(92vw,1050px)] !rounded-[999px] px-4 py-2 text-white transition hover:scale-[1.003]"
-            style={{ position: "fixed", left: "50%", transform: "translateX(-50%)", bottom: 16, top: "auto", right: "auto" }}
+            style={glassStyle}
+            onMouseMove={handlePointerMove}
+            onMouseLeave={handlePointerLeave}
             aria-label="Open track in Spotify"
         >
             <div className="liquid-glass-filter" />

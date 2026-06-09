@@ -30,11 +30,12 @@ const CurrentlyPlayingCard = () => {
   const [statusReason, setStatusReason] = useState<string | null>(null);
 
   useEffect(() => {
+    const controller = new AbortController();
     const fetchSongData = async () => {
       setHasError(false);
       setStatusReason(null);
       try {
-        const res = await fetch("/api/spotify");
+        const res = await fetch("/api/spotify", { cache: "no-store", signal: controller.signal });
         if (!res.ok) {
           throw new Error("Could not fetch Spotify status");
         }
@@ -57,7 +58,8 @@ const CurrentlyPlayingCard = () => {
           setStatusReason(data.reason || "Nothing recent on Spotify right now.");
         }
       } catch (error) {
-        console.error("Error fetching song data:", error);
+        // Network hiccup / aborted on unmount — handled via the fallback UI, no console noise.
+        if ((error as Error)?.name === "AbortError") return;
         setHasError(true);
       } finally {
         setIsLoading(false);
@@ -66,7 +68,10 @@ const CurrentlyPlayingCard = () => {
 
     fetchSongData();
     const interval = window.setInterval(fetchSongData, 45000);
-    return () => window.clearInterval(interval);
+    return () => {
+      controller.abort();
+      window.clearInterval(interval);
+    };
   }, []);
 
   if (isLoading) {

@@ -96,11 +96,14 @@ export function CommandPalette() {
     return searchable.includes(query.toLowerCase())
   })
 
+  // The 3D world (/world) has its own immersive HUD, so hide the global palette there.
+  if (pathname?.startsWith("/world")) return null
+
   if (!isOpen) {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-5 right-5 z-50 inline-flex items-center gap-2 rounded-full border border-border bg-card/95 px-3 py-2 text-sm text-muted-foreground shadow-lg backdrop-blur-md transition hover:text-foreground"
+        className="fixed bottom-[96px] right-5 z-50 hidden md:inline-flex items-center gap-2 rounded-full border border-border bg-card/95 px-3 py-2 text-sm text-muted-foreground shadow-lg backdrop-blur-md transition hover:text-foreground"
         aria-label="Open command palette"
       >
         <Command size={16} />

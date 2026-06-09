@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
+import { usePathname } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { PanelRightClose } from "lucide-react"
 import { useIsMobile } from "@/hooks/use-mobile"
@@ -13,8 +14,10 @@ type ChatMessage = {
 }
 
 export function ProfileRagChat() {
+  const pathname = usePathname()
   const isMobile = useIsMobile()
-  const [isOpen, setIsOpen] = useState(true)
+  const [isOpen, setIsOpen] = useState(false)
+  const [showHint, setShowHint] = useState(false)
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: "assistant",
@@ -29,6 +32,26 @@ export function ProfileRagChat() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages, isLoading])
+
+  // First-visit coachmark: point newcomers at NAVI, then never show again.
+  useEffect(() => {
+    try {
+      if (!localStorage.getItem("navi-hint-seen")) {
+        const t = setTimeout(() => setShowHint(true), 1400)
+        return () => clearTimeout(t)
+      }
+    } catch {}
+  }, [])
+
+  const dismissHint = () => {
+    setShowHint(false)
+    try { localStorage.setItem("navi-hint-seen", "1") } catch {}
+  }
+
+  const openChat = () => {
+    setIsOpen(true)
+    dismissHint()
+  }
 
   const submitMessage = async () => {
     const trimmed = input.trim()
@@ -62,6 +85,9 @@ export function ProfileRagChat() {
       setIsLoading(false)
     }
   }
+
+  // The 3D world (/world) has its own in-world RAG villager, so hide the global widget there.
+  if (pathname?.startsWith("/world")) return null
 
   return (
     <>
@@ -221,33 +247,70 @@ export function ProfileRagChat() {
 
       {/* Collapsed tab — animated glow so users notice it */}
       {!isOpen ? (
-        <div
-          className={`fixed z-[90] ${isMobile ? "bottom-6 right-0" : "right-0 top-1/2 -translate-y-1/2"
-            }`}
-        >
-          <div className="relative">
-            {/* Glow blob behind the tab */}
-            <div className="absolute inset-0 rounded-l-2xl bg-gradient-to-b from-orange-400/40 to-blue-400/30 blur-md animate-pulse" />
-            <button
-              type="button"
-              onClick={() => setIsOpen(true)}
-              className={`relative flex items-center gap-1.5 rounded-l-2xl border border-r-0 border-orange-400/50 bg-card/95 backdrop-blur-md transition hover:border-orange-400 ${isMobile ? "flex-row px-4 py-2.5 gap-2" : "flex-col px-2.5 py-5"
-                }`}
-              aria-label="Open NAVI assistant"
-            >
-              <span
-                className={`font-bold text-foreground ${isMobile ? "text-sm" : "text-[11px] [writing-mode:vertical-lr] rotate-180 tracking-[0.3em]"
+        <>
+          <div
+            className={`fixed z-[90] ${isMobile ? "bottom-[160px] right-0" : "right-0 top-1/2 -translate-y-1/2"
+              }`}
+          >
+            <div className="relative">
+              {/* Glow blob behind the tab */}
+              <div className="absolute inset-0 rounded-l-2xl bg-gradient-to-b from-orange-400/40 to-blue-400/30 blur-md animate-pulse" />
+              <button
+                type="button"
+                onClick={openChat}
+                className={`relative flex items-center gap-1.5 rounded-l-2xl border border-r-0 border-orange-400/50 bg-card/95 backdrop-blur-md transition hover:border-orange-400 ${isMobile ? "flex-row px-4 py-2.5 gap-2" : "flex-col px-2.5 py-5"
                   }`}
+                aria-label="Open NAVI assistant"
               >
-                NAVI
-              </span>
-              <span className="relative flex h-2 w-2 flex-shrink-0">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-orange-400 opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-orange-400" />
-              </span>
-            </button>
+                <span
+                  className={`font-bold text-foreground ${isMobile ? "text-sm" : "text-[11px] [writing-mode:vertical-lr] rotate-180 tracking-[0.3em]"
+                    }`}
+                >
+                  NAVI
+                </span>
+                <span className="relative flex h-2 w-2 flex-shrink-0">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-orange-400 opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-orange-400" />
+                </span>
+              </button>
+            </div>
           </div>
-        </div>
+
+          {/* First-visit coachmark pointing at NAVI */}
+          {showHint ? (
+            <div
+              className={`fixed z-[96] ${isMobile ? "bottom-[156px] right-3" : "right-[58px] top-1/2 -translate-y-1/2"}`}
+            >
+              <div className="relative max-w-[230px] rounded-2xl border border-orange-400/60 bg-card/95 p-3 shadow-2xl backdrop-blur-md">
+                <button
+                  type="button"
+                  onClick={dismissHint}
+                  className="absolute -right-2 -top-2 grid h-5 w-5 place-items-center rounded-full border border-border bg-card text-[11px] text-muted-foreground hover:text-foreground"
+                  aria-label="Dismiss"
+                >
+                  ✕
+                </button>
+                <p className="text-sm font-semibold text-foreground">👋 Meet NAVI</p>
+                <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                  Nikhil&apos;s AI assistant. Ask anything about his projects, experience, or travels.
+                </p>
+                <button
+                  type="button"
+                  onClick={openChat}
+                  className="mt-2 rounded-full bg-accent px-3 py-1 text-xs font-medium text-accent-foreground transition hover:bg-accent/90"
+                >
+                  Try it →
+                </button>
+                {/* Bouncing pointer toward the tab */}
+                <span
+                  className={`pointer-events-none absolute animate-bounce text-xl ${isMobile ? "-bottom-7 right-4" : "top-1/2 -right-7 -translate-y-1/2"}`}
+                >
+                  {isMobile ? "👇" : "👉"}
+                </span>
+              </div>
+            </div>
+          ) : null}
+        </>
       ) : null}
     </>
   )

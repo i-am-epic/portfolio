@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { GoogleGenAI } from "@google/genai"
 import { retrieveRelevantChunks } from "@/lib/profile-knowledge"
+import { looksLikePromptInjection, looksMalicious, niceTryNavi } from "@/lib/server/moderate"
 
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
@@ -19,6 +20,11 @@ export async function POST(request: Request) {
 
     if (!message || !message.trim()) {
       return NextResponse.json({ error: "Message is required" }, { status: 400 })
+    }
+
+    // Prompt-injection / code-injection attempts get a witty rebuff, no LLM call.
+    if (looksLikePromptInjection(message) || looksMalicious(message)) {
+      return NextResponse.json({ answer: niceTryNavi(), citations: [] })
     }
 
     if (!process.env.GEMINI_API_KEY) {

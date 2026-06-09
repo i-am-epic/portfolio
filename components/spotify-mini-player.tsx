@@ -1,9 +1,55 @@
 "use client"
 
-import { CSSProperties, MouseEvent, useEffect, useMemo, useState } from "react"
+import { CSSProperties, MouseEvent, PointerEvent as ReactPointerEvent, useEffect, useMemo, useRef, useState } from "react"
 import { usePathname } from "next/navigation"
 import Image from "next/image"
 import { ExternalLink, PauseCircle, PlayCircle, SkipBack, SkipForward } from "lucide-react"
+import { useIsMobile } from "@/hooks/use-mobile"
+
+// Mobile: a draggable glassy circle that snaps to the screen sides (default top-left).
+function SpotifyBubble({ image, track, url, isPlaying }: { image: string; track: string; url: string; isPlaying: boolean }) {
+    const SIZE = 56
+    const [pos, setPos] = useState({ x: 12, y: 88 })
+    const [dragging, setDragging] = useState(false)
+    const drag = useRef({ active: false, moved: false, dx: 0, dy: 0 })
+
+    const onDown = (e: ReactPointerEvent) => {
+        drag.current = { active: true, moved: false, dx: e.clientX - pos.x, dy: e.clientY - pos.y }
+        setDragging(true)
+        ;(e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId)
+    }
+    const onMove = (e: ReactPointerEvent) => {
+        if (!drag.current.active) return
+        if (Math.abs(e.movementX) + Math.abs(e.movementY) > 2) drag.current.moved = true
+        setPos({ x: e.clientX - drag.current.dx, y: e.clientY - drag.current.dy })
+    }
+    const onUp = () => {
+        if (!drag.current.active) return
+        drag.current.active = false
+        setDragging(false)
+        const w = window.innerWidth, h = window.innerHeight
+        setPos((p) => ({
+            x: p.x + SIZE / 2 < w / 2 ? 12 : w - SIZE - 12, // snap to nearest side
+            y: Math.min(Math.max(p.y, 70), h - SIZE - 100),
+        }))
+        if (!drag.current.moved) window.open(url, "_blank", "noopener,noreferrer")
+    }
+
+    const style: CSSProperties = {
+        position: "fixed", left: pos.x, top: pos.y, width: SIZE, height: SIZE, borderRadius: "50%",
+        zIndex: 120, overflow: "hidden", touchAction: "none", cursor: dragging ? "grabbing" : "grab",
+        boxShadow: "0 8px 22px rgba(0,0,0,0.5), inset 0 0 0 2px rgba(255,255,255,0.55)",
+        WebkitBackdropFilter: "blur(8px) saturate(1.5)", backdropFilter: "blur(8px) saturate(1.5)",
+        background: "rgba(18,28,40,0.5)",
+        transition: dragging ? "none" : "left 0.3s cubic-bezier(0.34,1.3,0.5,1), top 0.18s ease",
+    }
+    return (
+        <div style={style} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} aria-label={`Spotify: ${track}`}>
+            <img src={image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", pointerEvents: "none" }} />
+            <span style={{ position: "absolute", right: 3, bottom: 3, width: 11, height: 11, borderRadius: "50%", background: isPlaying ? "#1db954" : "rgba(255,255,255,0.7)", boxShadow: isPlaying ? "0 0 7px #1db954" : "none" }} />
+        </div>
+    )
+}
 
 type SongPayload = {
     item?: {
@@ -25,6 +71,7 @@ type SpotifyApiResponse = {
 
 export function SpotifyMiniPlayer() {
     const pathname = usePathname()
+    const isMobile = useIsMobile()
     const [song, setSong] = useState<SongPayload | null>(null)
     const [isPlaying, setIsPlaying] = useState(false)
 
@@ -88,7 +135,7 @@ export function SpotifyMiniPlayer() {
         position: "fixed",
         left: "50%",
         transform: "translateX(-50%)",
-        bottom: 92,
+        bottom: 12,
         top: "auto",
         right: "auto",
         ["--mx" as string]: "50%",
@@ -98,12 +145,15 @@ export function SpotifyMiniPlayer() {
     // The 3D world (/world) has its own in-world jukebox, so hide the global mini player there.
     if (pathname?.startsWith("/world")) return null
 
+    // On phones, use a small draggable circle that snaps to the sides instead of the wide bar.
+    if (isMobile) return <SpotifyBubble image={image} track={track} url={url} isPlaying={isPlaying} />
+
     return (
         <a
             href={url}
             target="_blank"
             rel="noopener noreferrer"
-            className="liquid-glass z-[120] w-[min(96vw,1050px)] !rounded-[999px] px-3 py-2 md:px-4 text-white transition hover:scale-[1.003]"
+            className="liquid-glass z-[60] w-[min(92vw,720px)] !rounded-[999px] px-3 py-2 md:px-4 text-white transition hover:scale-[1.003]"
             style={glassStyle}
             onMouseMove={handlePointerMove}
             onMouseLeave={handlePointerLeave}

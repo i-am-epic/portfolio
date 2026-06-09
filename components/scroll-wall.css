@@ -8,11 +8,10 @@ body { padding-bottom: 132px; }
 .sw-water {
   position: fixed; left: 0; right: 0; bottom: 0; height: 118px; z-index: 55; overflow: hidden;
 }
-@media (max-width: 640px) { .sw-water { height: 96px; } }
+/* On phones, extend the sea below the fold so the URL-bar / overscroll never
+   leaves a gap under the water when scrolling. */
+@media (max-width: 640px) { .sw-water { height: 132px; bottom: -36px; } }
 .sw-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: pointer; }
-
-/* On phones, stack the Spotify pill above the water + slot card. */
-@media (max-width: 640px) { .liquid-glass { bottom: 152px !important; } }
 
 .sw-sheen {
   position: absolute; top: 0; left: -60%; width: 55%; height: 70%;

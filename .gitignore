@@ -22,6 +22,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# local dev data store (scroll wall + leaderboard fallback)
+/.data
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

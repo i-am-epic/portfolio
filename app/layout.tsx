@@ -8,6 +8,9 @@ import { ProfileRagChat } from "@/components/profile-rag-chat"
 import { AnimatedFavicon } from "@/components/animated-favicon"
 import { SpotifyMiniPlayer } from "@/components/spotify-mini-player"
 import { ChunkErrorRecovery } from "@/components/chunk-error-recovery"
+import { ScrollWall } from "@/components/scroll-wall"
+import { SlotLauncher } from "@/components/slot-launcher"
+import { WorldPortal } from "@/components/world-portal"
 
 const sora = Sora({
   subsets: ["latin"],
@@ -64,13 +67,18 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${sora.variable} ${spaceGrotesk.variable}`}>
+      {/* suppressHydrationWarning: browser extensions (Grammarly, etc.) inject
+          data-* attributes onto <body> before React hydrates. */}
+      <body className={`${sora.variable} ${spaceGrotesk.variable}`} suppressHydrationWarning>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           <AnimatedFavicon />
           <ChunkErrorRecovery />
           <CommandPalette />
           <ProfileRagChat />
           <SpotifyMiniPlayer />
+          <ScrollWall />
+          <SlotLauncher />
+          <WorldPortal />
           {children}
         </ThemeProvider>
       </body>

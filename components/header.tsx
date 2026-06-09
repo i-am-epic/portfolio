@@ -35,7 +35,7 @@ export function Header({ activePage = "home" }: HeaderProps) {
         >
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <Link href="/" className="text-xl font-medium">
+            <Link href="/classic" className="text-xl font-medium">
               nikhil a v.
             </Link>
             {/* Navigation Links */}
@@ -43,7 +43,7 @@ export function Header({ activePage = "home" }: HeaderProps) {
               {["home", "works", "contact"].map((page) => (
                 <Link
                   key={page}
-                  href={`/${page === "home" ? "" : page}`}
+                  href={`/${page === "home" ? "classic" : page}`}
                   className={`relative ${activePage === page ? "text-foreground" : "text-muted-foreground hover:text-foreground transition-colors"}`}
                 >
                   {page}.

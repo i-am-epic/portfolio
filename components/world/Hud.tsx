@@ -328,6 +328,15 @@ export function Hud() {
     return () => window.removeEventListener("world-toggle-help", t)
   }, [])
 
+  // Opening an HTML overlay needs the cursor back. Help (H / 9) and the quest
+  // journal (J) can be triggered while the pointer is locked — unlike station
+  // panels, which unlock via openPanel — so the lock would otherwise keep the
+  // cursor hidden behind the overlay and mouse moves would swing the camera.
+  useEffect(() => {
+    if (touch) return
+    if ((help || quests) && document.pointerLockElement) document.exitPointerLock()
+  }, [help, quests, touch])
+
   // Number-key quick menu + H for help + J for quests.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {

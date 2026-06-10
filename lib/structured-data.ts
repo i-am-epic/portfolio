@@ -52,6 +52,25 @@ export function webSiteJsonLd() {
   }
 }
 
+/**
+ * Person + WebSite combined under a single `@context` graph for the root
+ * layout. Emitting a bare array (`[{…},{…}]`) as ld+json leaves the top-level
+ * value without an `@context`, so consumers that normalise it with
+ * `data["@context"].toLowerCase()` — several SEO / browser extensions, and
+ * Google's own tooling — throw `undefined is not an object`. `@graph` keeps one
+ * string `@context` at the top while still carrying both entities.
+ */
+export function siteGraphJsonLd() {
+  const stripContext = <T extends Record<string, unknown>>(node: T) => {
+    const { "@context": _drop, ...rest } = node
+    return rest
+  }
+  return {
+    "@context": "https://schema.org",
+    "@graph": [stripContext(personJsonLd()), stripContext(webSiteJsonLd())],
+  }
+}
+
 export function projectsJsonLd() {
   return {
     "@context": "https://schema.org",

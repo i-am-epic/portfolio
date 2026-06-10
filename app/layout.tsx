@@ -11,7 +11,7 @@ import { ChunkErrorRecovery } from "@/components/chunk-error-recovery"
 import { ScrollWall } from "@/components/scroll-wall"
 import { SlotLauncher } from "@/components/slot-launcher"
 import { WorldPortal } from "@/components/world-portal"
-import { personJsonLd, webSiteJsonLd } from "@/lib/structured-data"
+import { siteGraphJsonLd } from "@/lib/structured-data"
 
 const sora = Sora({
   subsets: ["latin"],
@@ -88,7 +88,7 @@ export default function RootLayout({
       <body className={`${sora.variable} ${spaceGrotesk.variable}`} suppressHydrationWarning>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify([personJsonLd(), webSiteJsonLd()]) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteGraphJsonLd()) }}
         />
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           <AnimatedFavicon />

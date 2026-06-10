@@ -1,5 +1,6 @@
 import { WorldClient } from "@/components/world/WorldClient"
 import { PROFILE, PROJECTS, SOCIALS } from "@/lib/world/worldData"
+import { projectsJsonLd } from "@/lib/structured-data"
 
 // Visually-hidden but server-rendered content so crawlers / no-JS visitors still
 // get the real portfolio data and links. The full classic site lives at /classic.
@@ -18,6 +19,10 @@ const srOnly: React.CSSProperties = {
 export default function WorldPage() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(projectsJsonLd()) }}
+      />
       <WorldClient />
 
       <section style={srOnly}>

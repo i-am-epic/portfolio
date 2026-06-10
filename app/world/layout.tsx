@@ -15,6 +15,7 @@ export const metadata: Metadata = {
   title: "Explore the 3D World",
   description:
     "Walk through Nikhil A V's portfolio as an explorable Minecraft-style 3D world — project chests, an AI villager, and a contact portal.",
+  alternates: { canonical: "/world" },
 }
 
 export default function WorldLayout({ children }: { children: React.ReactNode }) {

@@ -5,6 +5,8 @@ import { useFrame, useThree } from "@react-three/fiber"
 import { PointerLockControls } from "@react-three/drei"
 import * as THREE from "three"
 import { useWorld } from "@/lib/world/store"
+import { useAchievements } from "@/lib/world/achievements"
+import { consumeLook, touchInput } from "@/lib/world/touchInput"
 import {
   COLLIDERS,
   INTERACTABLES,
@@ -18,16 +20,23 @@ const WALK = 5.2
 const SPRINT = 8.4
 const GRAVITY = 22
 const JUMP = 7.5
+const LOOK_SPEED = 0.0042
+const MAX_PITCH = 1.45
 
 type Keys = Record<string, boolean>
 
 export function FirstPersonController() {
   const { camera } = useThree()
+  const touch = useWorld((s) => s.touch)
   const controls = useRef<any>(null)
   const keys = useRef<Keys>({})
   const velY = useRef(0)
   const grounded = useRef(true)
   const lastCoordPush = useRef(0)
+  // Manual look state (touch mode only — pointer lock handles desktop).
+  const yaw = useRef(SPAWN.yaw)
+  const pitch = useRef(0)
+  const euler = useMemo(() => new THREE.Euler(0, 0, 0, "YXZ"), [])
 
   const forward = useMemo(() => new THREE.Vector3(), [])
   const right = useMemo(() => new THREE.Vector3(), [])
@@ -38,6 +47,9 @@ export function FirstPersonController() {
   useEffect(() => {
     camera.position.set(SPAWN.position[0], SPAWN.position[1], SPAWN.position[2])
     camera.lookAt(0, PLAYER_EYE, 0)
+    const e = new THREE.Euler(0, 0, 0, "YXZ").setFromQuaternion(camera.quaternion)
+    yaw.current = e.y
+    pitch.current = e.x
     if (process.env.NODE_ENV !== "production") {
       ;(window as unknown as { __cam?: THREE.Camera }).__cam = camera
     }
@@ -49,7 +61,8 @@ export function FirstPersonController() {
       keys.current[e.code] = true
       if (e.code === "KeyE") {
         const s = useWorld.getState()
-        if (s.locked && s.target && !s.activePanel) s.openPanel(s.target)
+        const inGame = s.touch ? s.started : s.locked
+        if (inGame && s.target && !s.activePanel) s.openPanel(s.target)
       }
       if (["KeyW", "KeyA", "KeyS", "KeyD", "Space"].includes(e.code)) e.preventDefault()
     }
@@ -62,11 +75,13 @@ export function FirstPersonController() {
     }
   }, [])
 
-  // Lock/unlock wiring. Use the standard pointerlockchange event (robust) instead
-  // of the drei controls' own events, and attach the request listener
-  // unconditionally — the controls ref is populated asynchronously, so depending
-  // on it here would (and did) silently drop the listener and break Resume.
+  // Lock/unlock wiring (desktop pointer lock only). Use the standard
+  // pointerlockchange event (robust) instead of the drei controls' own events,
+  // and attach the request listener unconditionally — the controls ref is
+  // populated asynchronously, so depending on it here would (and did) silently
+  // drop the listener and break Resume.
   useEffect(() => {
+    if (touch) return
     const onChange = () => {
       const locked = !!document.pointerLockElement
       useWorld.getState().setLocked(locked)
@@ -87,14 +102,15 @@ export function FirstPersonController() {
       document.removeEventListener("pointerlockerror", onError)
       window.removeEventListener("world-request-lock", onRequest)
     }
-  }, [])
+  }, [touch])
 
   // Close panel -> nothing; open panel -> release pointer so HTML is usable.
   useEffect(() => {
+    if (touch) return
     return useWorld.subscribe((s) => {
       if (s.activePanel && controls.current?.isLocked) controls.current.unlock()
     })
-  }, [])
+  }, [touch])
 
   const resolveCollisions = (px: number, pz: number): [number, number] => {
     const r = PLAYER_RADIUS
@@ -117,9 +133,18 @@ export function FirstPersonController() {
   useFrame((_, dtRaw) => {
     const dt = Math.min(dtRaw, 0.05)
     const s = useWorld.getState()
-    const active = s.locked && !s.activePanel
+    const active = (s.touch ? s.started : s.locked) && !s.activePanel
 
     if (active) {
+      // Touch look: apply accumulated drag deltas to yaw/pitch directly.
+      if (s.touch) {
+        const [dx, dy] = consumeLook()
+        yaw.current -= dx * LOOK_SPEED
+        pitch.current = Math.max(-MAX_PITCH, Math.min(MAX_PITCH, pitch.current - dy * LOOK_SPEED))
+        euler.set(pitch.current, yaw.current, 0)
+        camera.quaternion.setFromEuler(euler)
+      }
+
       camera.getWorldDirection(forward)
       forward.y = 0
       forward.normalize()
@@ -131,8 +156,15 @@ export function FirstPersonController() {
       if (k["KeyS"]) move.sub(forward)
       if (k["KeyD"]) move.add(right)
       if (k["KeyA"]) move.sub(right)
+      if (s.touch && (touchInput.move.x || touchInput.move.y)) {
+        move.addScaledVector(forward, touchInput.move.y)
+        move.addScaledVector(right, touchInput.move.x)
+      }
 
-      const speed = k["ShiftLeft"] || k["ShiftRight"] ? SPRINT : WALK
+      // Pushing the stick to its edge sprints; keyboard uses Shift.
+      const stickMag = Math.hypot(touchInput.move.x, touchInput.move.y)
+      const sprint = k["ShiftLeft"] || k["ShiftRight"] || stickMag > 0.92
+      const speed = sprint ? SPRINT : WALK
       let nx = camera.position.x
       let nz = camera.position.z
       if (move.lengthSq() > 0) {
@@ -145,10 +177,11 @@ export function FirstPersonController() {
       camera.position.z = nz
 
       // Jump + gravity (flat floor at PLAYER_EYE).
-      if ((k["Space"]) && grounded.current) {
+      if ((k["Space"] || touchInput.jump) && grounded.current) {
         velY.current = JUMP
         grounded.current = false
       }
+      touchInput.jump = false
       velY.current -= GRAVITY * dt
       camera.position.y += velY.current * dt
       if (camera.position.y <= PLAYER_EYE) {
@@ -169,13 +202,14 @@ export function FirstPersonController() {
     }
     if (best?.id !== s.target?.id) s.setTarget(best)
 
-    // Throttle HUD coordinate updates.
+    // Throttle HUD coordinate updates + location-based achievements.
     lastCoordPush.current += dt
     if (lastCoordPush.current > 0.15) {
       lastCoordPush.current = 0
       s.setCoords([camera.position.x, camera.position.y, camera.position.z])
+      useAchievements.getState().trackPosition(camera.position.x, camera.position.z)
     }
   })
 
-  return <PointerLockControls ref={controls} />
+  return touch ? null : <PointerLockControls ref={controls} />
 }

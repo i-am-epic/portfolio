@@ -11,6 +11,7 @@ import { ChunkErrorRecovery } from "@/components/chunk-error-recovery"
 import { ScrollWall } from "@/components/scroll-wall"
 import { SlotLauncher } from "@/components/slot-launcher"
 import { WorldPortal } from "@/components/world-portal"
+import { personJsonLd, webSiteJsonLd } from "@/lib/structured-data"
 
 const sora = Sora({
   subsets: ["latin"],
@@ -29,34 +30,49 @@ export const metadata: Metadata = {
     template: "%s | Nikhil A V",
   },
   description:
-    "Portfolio of Nikhil A V: high-performance data systems, AI products, and end-to-end engineering case studies.",
+    "Portfolio of Nikhil A V: high-performance data systems, AI products, and an explorable 3D voxel world of engineering case studies.",
   keywords: [
     "Nikhil A V",
     "Data Engineer",
     "AI Engineer",
     "Portfolio",
+    "3D Portfolio",
+    "Gamified Portfolio",
     "Next.js Portfolio",
     "Azure",
     "Machine Learning",
+    "Bengaluru",
   ],
+  authors: [{ name: "Nikhil A V", url: "https://nikhilav.dev" }],
+  creator: "Nikhil A V",
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
     type: "website",
     title: "Nikhil A V | Data Engineer & AI Builder",
     description:
-      "Building scalable data platforms, AI-powered tools, and production-grade backend systems.",
+      "Building scalable data platforms, AI-powered tools, and production-grade backend systems. Explore the portfolio as a walkable 3D world.",
     url: "https://nikhilav.dev",
     siteName: "Nikhil A V Portfolio",
+    locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
     title: "Nikhil A V | Data Engineer & AI Builder",
     description:
-      "Case studies and projects in data engineering, AI, and distributed systems.",
+      "Case studies and projects in data engineering, AI, and distributed systems — explorable as a 3D world.",
+    creator: "@nikhilav",
   },
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",
     apple: "/favicon.svg",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large" },
   },
 }
 
@@ -70,6 +86,10 @@ export default function RootLayout({
       {/* suppressHydrationWarning: browser extensions (Grammarly, etc.) inject
           data-* attributes onto <body> before React hydrates. */}
       <body className={`${sora.variable} ${spaceGrotesk.variable}`} suppressHydrationWarning>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify([personJsonLd(), webSiteJsonLd()]) }}
+        />
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           <AnimatedFavicon />
           <ChunkErrorRecovery />

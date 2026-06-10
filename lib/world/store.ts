@@ -1,5 +1,6 @@
 import { create } from "zustand"
 import type { Interactable } from "./worldData"
+import { useAchievements } from "./achievements"
 
 type WorldState = {
   /** Pointer is locked = player is "in" the game. */
@@ -25,6 +26,10 @@ type WorldState = {
   /** True once the player has clicked "Enter World" at least once. */
   started: boolean
   setStarted: (v: boolean) => void
+
+  /** Coarse-pointer device: on-screen joystick instead of pointer lock. */
+  touch: boolean
+  setTouch: (v: boolean) => void
 }
 
 export const useWorld = create<WorldState>((set) => ({
@@ -36,7 +41,10 @@ export const useWorld = create<WorldState>((set) => ({
     set((s) => (s.target?.id === t?.id ? s : { target: t })),
 
   activePanel: null,
-  openPanel: (i) => set({ activePanel: i }),
+  openPanel: (i) => {
+    set({ activePanel: i })
+    useAchievements.getState().trackPanel(i)
+  },
   closePanel: () => set({ activePanel: null }),
 
   coords: [0, 0, 0],
@@ -47,6 +55,9 @@ export const useWorld = create<WorldState>((set) => ({
 
   started: false,
   setStarted: (v) => set({ started: v }),
+
+  touch: false,
+  setTouch: (v) => set({ touch: v }),
 }))
 
 // Dev-only debugging handle (stripped from production builds).

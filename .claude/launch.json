@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "portfolio-prod",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["start", "-p", "3201"],
+      "port": 3201
+    },
+    {
+      "name": "portfolio-dev",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["dev", "-p", "3202"],
+      "port": 3202
+    }
+  ]
+}

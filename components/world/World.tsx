@@ -8,6 +8,7 @@ import { VoxelWorld } from "./VoxelWorld"
 import { Structures } from "./Structures"
 import { WorldDecor } from "./WorldDecor"
 import { FirstPersonController } from "./FirstPersonController"
+import { Ghosts } from "./Ghosts"
 import { Hud } from "./Hud"
 import { Panels } from "./Panels"
 import { SPAWN } from "@/lib/world/worldData"
@@ -41,6 +42,7 @@ function Scene() {
         <VoxelWorld />
         <Structures />
         <WorldDecor />
+        <Ghosts />
       </Suspense>
 
       <FirstPersonController />

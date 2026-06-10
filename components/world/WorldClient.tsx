@@ -2,8 +2,8 @@
 
 import dynamic from "next/dynamic"
 import { Component, type ReactNode, useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import { PROFILE } from "@/lib/world/worldData"
+import { useWorld } from "@/lib/world/store"
+import { isTouchDevice } from "@/lib/world/touchInput"
 
 const World = dynamic(() => import("./World"), {
   ssr: false,
@@ -15,18 +15,6 @@ function LoadingScreen({ label }: { label: string }) {
     <div className="mc-fullscreen mc">
       <div className="mc-spin" />
       <p style={{ color: "#cbd5e1", fontSize: 14 }}>{label}</p>
-    </div>
-  )
-}
-
-function RedirectNotice() {
-  return (
-    <div className="mc-fullscreen mc">
-      <h1 style={{ color: "#ff7a48", textShadow: "2px 2px 0 #000", margin: 0 }}>{PROFILE.name}</h1>
-      <p style={{ color: "#cbd5e1", fontSize: 14, maxWidth: 420, lineHeight: 1.6 }}>
-        The 3D world is built for desktop. Taking you to the classic portfolio…
-      </p>
-      <a className="mc-btn mc-btn--accent" href="/classic">Open classic site →</a>
     </div>
   )
 }
@@ -63,28 +51,18 @@ class WorldErrorBoundary extends Component<{ children: ReactNode }, { hasError: 
 }
 
 export function WorldClient() {
-  const router = useRouter()
-  const [state, setState] = useState<"checking" | "ok" | "mobile">("checking")
+  const setTouch = useWorld((s) => s.setTouch)
+  const [state, setState] = useState<"checking" | "ok">("checking")
 
   useEffect(() => {
-    const ua = navigator.userAgent || ""
-    const uaMobile = /Android|iPhone|iPad|iPod|Mobile|Opera Mini|IEMobile|Silk/i.test(ua)
-    const coarse = window.matchMedia?.("(pointer: coarse)")?.matches ?? false
-    const small = Math.min(window.innerWidth, window.innerHeight) < 760
-    // Only real phones/tablets fall back. Desktop browsers (incl. Brave, whose
-    // fingerprint shields make WebGL feature-detection unreliable) always get the
-    // world; a true WebGL failure is caught by the error boundary below.
-    const isMobile = uaMobile || (coarse && small)
-
-    if (isMobile) {
-      setState("mobile")
-      const t = setTimeout(() => router.replace("/classic"), 1400)
-      return () => clearTimeout(t)
-    }
+    // Phones and tablets get the world too — with on-screen touch controls
+    // instead of pointer lock. Desktop browsers (incl. Brave, whose fingerprint
+    // shields make WebGL feature-detection unreliable) always get the world; a
+    // true WebGL failure is caught by the error boundary below.
+    setTouch(isTouchDevice())
     setState("ok")
-  }, [router])
+  }, [setTouch])
 
-  if (state === "mobile") return <RedirectNotice />
   if (state === "checking") return <LoadingScreen label="Preparing world…" />
   return (
     <WorldErrorBoundary>

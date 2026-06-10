@@ -1,11 +1,14 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useProgress } from "@react-three/drei"
 import { useWorld } from "@/lib/world/store"
-import { PROFILE, STATIONS, type InteractKind } from "@/lib/world/worldData"
+import { ACHIEVEMENTS, formatMs, useAchievements } from "@/lib/world/achievements"
+import { PROFILE, PROJECT_CHESTS, STATIONS, type InteractKind } from "@/lib/world/worldData"
+import { TouchControls } from "./TouchControls"
 
 const requestLock = () => window.dispatchEvent(new Event("world-request-lock"))
+const NAME_KEY = "world:player-name"
 
 type Slot = { key: string; icon: string; label: string; action: () => void }
 
@@ -37,7 +40,7 @@ function Hotbar() {
         <button key={s.key} className="mc-hotslot" onClick={s.action} title={`${s.label} (${s.key})`}>
           <span className="mc-hotslot__key">{s.key}</span>
           <span className="mc-hotslot__icon">{s.icon}</span>
-          <span>{s.label}</span>
+          <span className="mc-hotslot__label">{s.label}</span>
         </button>
       ))}
     </div>
@@ -46,6 +49,8 @@ function Hotbar() {
 
 function StartGate() {
   const setStarted = useWorld((s) => s.setStarted)
+  const touch = useWorld((s) => s.touch)
+  const award = useAchievements((s) => s.award)
   const { active, progress } = useProgress()
   const [ready, setReady] = useState(false)
 
@@ -61,7 +66,8 @@ function StartGate() {
   const enter = () => {
     if (!ready) return
     setStarted(true)
-    requestLock()
+    award("spawn")
+    if (!touch) requestLock()
   }
   return (
     <div className="mc-fullscreen mc">
@@ -71,9 +77,17 @@ function StartGate() {
         A walkable, block-built portfolio world. Explore the plaza, open project chests, talk to NAVI, and step through the contact portal.
       </p>
       <div className="mc-panel" style={{ padding: 14, fontSize: 13, color: "#e7e7ea" }}>
-        <b>Controls</b> &nbsp; <span className="mc-key">W</span><span className="mc-key">A</span><span className="mc-key">S</span><span className="mc-key">D</span> move &nbsp;·&nbsp;
-        mouse look &nbsp;·&nbsp; <span className="mc-key">Shift</span> sprint &nbsp;·&nbsp; <span className="mc-key">Space</span> jump &nbsp;·&nbsp;
-        <span className="mc-key">E</span> interact &nbsp;·&nbsp; <span className="mc-key">1</span>–<span className="mc-key">9</span> menu &nbsp;·&nbsp; <span className="mc-key">Esc</span> release
+        {touch ? (
+          <>
+            <b>Controls</b> &nbsp; left stick — move &nbsp;·&nbsp; drag screen — look &nbsp;·&nbsp; ⤒ jump &nbsp;·&nbsp; tap the glowing button to interact
+          </>
+        ) : (
+          <>
+            <b>Controls</b> &nbsp; <span className="mc-key">W</span><span className="mc-key">A</span><span className="mc-key">S</span><span className="mc-key">D</span> move &nbsp;·&nbsp;
+            mouse look &nbsp;·&nbsp; <span className="mc-key">Shift</span> sprint &nbsp;·&nbsp; <span className="mc-key">Space</span> jump &nbsp;·&nbsp;
+            <span className="mc-key">E</span> interact &nbsp;·&nbsp; <span className="mc-key">1</span>–<span className="mc-key">9</span> menu &nbsp;·&nbsp; <span className="mc-key">Esc</span> release
+          </>
+        )}
       </div>
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
         <button className="mc-btn mc-btn--accent" style={{ fontSize: 16, padding: "12px 22px", opacity: ready ? 1 : 0.6, cursor: ready ? "pointer" : "wait" }} onClick={enter} disabled={!ready}>
@@ -106,19 +120,30 @@ function PausedOverlay() {
 }
 
 function HelpOverlay({ onClose }: { onClose: () => void }) {
-  const close = useWorld((s) => s.closePanel)
-  void close
+  const touch = useWorld((s) => s.touch)
   return (
     <div className="mc-overlay" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose() }}>
       <div className="mc-panel mc" style={{ maxWidth: 480 }}>
         <div className="mc-titlebar"><span className="mc-title">❔ Controls</span><button className="mc-btn mc-close" onClick={onClose}>✕</button></div>
         <div style={{ padding: 16, fontSize: 14, lineHeight: 2 }}>
-          <div><span className="mc-key">W</span><span className="mc-key">A</span><span className="mc-key">S</span><span className="mc-key">D</span> — move</div>
-          <div>Mouse — look around</div>
-          <div><span className="mc-key">Shift</span> — sprint &nbsp; <span className="mc-key">Space</span> — jump</div>
-          <div><span className="mc-key">E</span> — interact with the highlighted object</div>
-          <div><span className="mc-key">1</span>–<span className="mc-key">9</span> — quick menu (hotbar)</div>
-          <div><span className="mc-key">Esc</span> — release pointer / close panel</div>
+          {touch ? (
+            <>
+              <div>Left stick — move (push to the edge to sprint)</div>
+              <div>Drag anywhere else — look around</div>
+              <div>⤒ button — jump</div>
+              <div>Glowing button — interact with the nearest object</div>
+              <div>Bottom menu — jump straight to any station</div>
+            </>
+          ) : (
+            <>
+              <div><span className="mc-key">W</span><span className="mc-key">A</span><span className="mc-key">S</span><span className="mc-key">D</span> — move</div>
+              <div>Mouse — look around</div>
+              <div><span className="mc-key">Shift</span> — sprint &nbsp; <span className="mc-key">Space</span> — jump</div>
+              <div><span className="mc-key">E</span> — interact with the highlighted object</div>
+              <div><span className="mc-key">J</span> — quest journal &nbsp; <span className="mc-key">1</span>–<span className="mc-key">9</span> — quick menu</div>
+              <div><span className="mc-key">Esc</span> — release pointer / close panel</div>
+            </>
+          )}
         </div>
       </div>
     </div>
@@ -147,12 +172,154 @@ function InteractPrompt() {
   )
 }
 
+// --- Advancements ------------------------------------------------------------
+
+function AchievementToast() {
+  const toasts = useAchievements((s) => s.toasts)
+  const shiftToast = useAchievements((s) => s.shiftToast)
+  const current = toasts[0]
+
+  useEffect(() => {
+    if (!current) return
+    const t = setTimeout(shiftToast, 3500)
+    return () => clearTimeout(t)
+  }, [current, shiftToast])
+
+  if (!current) return null
+  return (
+    <div className="mc-toast mc" key={current.id}>
+      <span className="mc-toast__icon">{current.icon}</span>
+      <span>
+        <b style={{ color: "#facc15" }}>Advancement Made!</b>
+        <br />
+        {current.title}
+      </span>
+    </div>
+  )
+}
+
+function QuestChip({ onOpen }: { onOpen: () => void }) {
+  const unlocked = useAchievements((s) => s.unlocked)
+  const n = Object.keys(unlocked).length
+  return (
+    <button className="mc-quest-chip mc" onClick={onOpen} title="Quest journal (J)">
+      🏆 {n}/{ACHIEVEMENTS.length}
+    </button>
+  )
+}
+
+type Run = { name: string; ms: number; date: number }
+
+function QuestsOverlay({ onClose }: { onClose: () => void }) {
+  const { unlocked, openedChests, bestRunMs, lastRunMs, runSubmitted, resetRun, markRunSubmitted } = useAchievements()
+  const [runs, setRuns] = useState<Run[]>([])
+  const [name, setName] = useState("")
+  const [busy, setBusy] = useState(false)
+  const fetched = useRef(false)
+
+  useEffect(() => {
+    try { setName(window.localStorage.getItem(NAME_KEY) || "") } catch {}
+    if (fetched.current) return
+    fetched.current = true
+    fetch("/api/speedrun", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((d: { runs?: Run[] }) => setRuns(Array.isArray(d.runs) ? d.runs : []))
+      .catch(() => {})
+  }, [])
+
+  const submit = async () => {
+    if (!lastRunMs || busy) return
+    setBusy(true)
+    const playerName = name.trim() || "Steve"
+    try { window.localStorage.setItem(NAME_KEY, playerName) } catch {}
+    try {
+      const res = await fetch("/api/speedrun", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: playerName, ms: lastRunMs }),
+      })
+      if (res.ok) {
+        markRunSubmitted()
+        setRuns((rs) => [...rs, { name: playerName, ms: lastRunMs, date: Date.now() }].sort((a, b) => a.ms - b.ms).slice(0, 10))
+      }
+    } catch {}
+    setBusy(false)
+  }
+
+  return (
+    <div className="mc-overlay" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose() }}>
+      <div className="mc-panel mc" style={{ maxWidth: 560, width: "100%" }}>
+        <div className="mc-titlebar"><span className="mc-title">🏆 Quest Journal</span><button className="mc-btn mc-close" onClick={onClose}>✕</button></div>
+        <div className="mc-scroll" style={{ maxHeight: "62vh", padding: 14 }}>
+          <div style={{ display: "grid", gap: 8 }}>
+            {ACHIEVEMENTS.map((a) => {
+              const done = Boolean(unlocked[a.id])
+              return (
+                <div key={a.id} className="mc-slot" style={{ display: "flex", gap: 12, alignItems: "center", opacity: done ? 1 : 0.55 }}>
+                  <span style={{ fontSize: 24, filter: done ? "none" : "grayscale(1)" }}>{a.icon}</span>
+                  <div style={{ flex: 1 }}>
+                    <b style={{ color: done ? "#facc15" : "#9aa0ac", fontSize: 14 }}>{a.title}</b>
+                    <div style={{ fontSize: 12, color: "#cbd5e1" }}>{a.desc}</div>
+                  </div>
+                  {done && <span style={{ color: "#34d399" }}>✔</span>}
+                </div>
+              )
+            })}
+          </div>
+
+          <div style={{ marginTop: 16, padding: 12, background: "#15161b", boxShadow: "inset 2px 2px 0 0 #34363f, inset -2px -2px 0 0 #0a0b0e" }}>
+            <b style={{ color: "#7dd3fc", fontSize: 14 }}>⏱ Chest Run</b>
+            <div style={{ fontSize: 12, color: "#cbd5e1", margin: "6px 0" }}>
+              Open all {PROJECT_CHESTS.length} project chests as fast as you can. Progress: {openedChests.length}/{PROJECT_CHESTS.length}
+              {bestRunMs !== null && <> · your best: <b style={{ color: "#34d399" }}>{formatMs(bestRunMs)}</b></>}
+            </div>
+
+            {lastRunMs !== null && !runSubmitted && (
+              <div style={{ display: "flex", gap: 8, margin: "10px 0", flexWrap: "wrap" }}>
+                <input
+                  className="mc-input"
+                  style={{ minWidth: 140 }}
+                  maxLength={16}
+                  placeholder="Your name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+                <button className="mc-btn mc-btn--accent" disabled={busy} onClick={submit}>
+                  Post {formatMs(lastRunMs)} to leaderboard
+                </button>
+              </div>
+            )}
+
+            {runs.length > 0 && (
+              <div style={{ marginTop: 8 }}>
+                {runs.slice(0, 5).map((r, i) => (
+                  <div key={r.date + i} style={{ display: "flex", gap: 10, fontSize: 12, padding: "3px 0", color: "#e7e7ea" }}>
+                    <span style={{ color: "#facc15", width: 22 }}>#{i + 1}</span>
+                    <span style={{ flex: 1 }}>{r.name}</span>
+                    <span style={{ color: "#34d399" }}>{formatMs(r.ms)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <button className="mc-btn mc-btn--ghost" style={{ marginTop: 10, fontSize: 12 }} onClick={resetRun}>
+              ↺ Reset run (keeps advancements)
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export function Hud() {
   const started = useWorld((s) => s.started)
   const locked = useWorld((s) => s.locked)
+  const touch = useWorld((s) => s.touch)
   const activePanel = useWorld((s) => s.activePanel)
   const openPanel = useWorld((s) => s.openPanel)
   const [help, setHelp] = useState(false)
+  const [quests, setQuests] = useState(false)
 
   // Help toggle event (from hotbar / paused overlay).
   useEffect(() => {
@@ -161,13 +328,23 @@ export function Hud() {
     return () => window.removeEventListener("world-toggle-help", t)
   }, [])
 
-  // Number-key quick menu + H for help.
+  // Opening an HTML overlay needs the cursor back. Help (H / 9) and the quest
+  // journal (J) can be triggered while the pointer is locked — unlike station
+  // panels, which unlock via openPanel — so the lock would otherwise keep the
+  // cursor hidden behind the overlay and mouse moves would swing the camera.
+  useEffect(() => {
+    if (touch) return
+    if ((help || quests) && document.pointerLockElement) document.exitPointerLock()
+  }, [help, quests, touch])
+
+  // Number-key quick menu + H for help + J for quests.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement
       if (el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA")) return
       if (!started) return
       if (e.code === "KeyH") { setHelp((h) => !h); return }
+      if (e.code === "KeyJ") { setQuests((q) => !q); return }
       const m = e.code.match(/^Digit([1-9])$/)
       if (!m) return
       const idx = Number(m[1]) - 1
@@ -185,15 +362,18 @@ export function Hud() {
 
   if (!started) return <StartGate />
 
-  const inGame = locked && !activePanel
-  const paused = !locked && !activePanel && !help
+  const inGame = (touch ? started : locked) && !activePanel
+  const paused = !touch && !locked && !activePanel && !help && !quests
 
   return (
     <>
-      {inGame && <Crosshair />}
+      {inGame && !touch && <Crosshair />}
       {inGame && <Coords />}
-      {inGame && <InteractPrompt />}
+      {inGame && !touch && <InteractPrompt />}
+      {inGame && touch && <TouchControls />}
       {!activePanel && <Hotbar />}
+      {!activePanel && <QuestChip onOpen={() => setQuests(true)} />}
+      <AchievementToast />
 
       <div className="mc-topright mc">
         <a className="mc-btn mc-btn--ghost" href="/classic" style={{ fontSize: 12 }}>Skip to classic ↗</a>
@@ -201,6 +381,7 @@ export function Hud() {
 
       {paused && <PausedOverlay />}
       {help && <HelpOverlay onClose={() => setHelp(false)} />}
+      {quests && <QuestsOverlay onClose={() => setQuests(false)} />}
     </>
   )
 }

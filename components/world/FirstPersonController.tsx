@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef } from "react"
 import { useFrame, useThree } from "@react-three/fiber"
 import { PointerLockControls } from "@react-three/drei"
 import * as THREE from "three"
-import { useWorld } from "@/lib/world/store"
+import { isPlayerActive, useWorld } from "@/lib/world/store"
 import { useAchievements } from "@/lib/world/achievements"
 import { consumeLook, touchInput } from "@/lib/world/touchInput"
 import {
@@ -28,7 +28,9 @@ type Keys = Record<string, boolean>
 export function FirstPersonController() {
   const { camera, scene, gl } = useThree()
   const touch = useWorld((s) => s.touch)
+  const lockFallback = useWorld((s) => s.lockFallback)
   const controls = useRef<any>(null)
+  const everLocked = useRef(false)
   const keys = useRef<Keys>({})
   const velY = useRef(0)
   const grounded = useRef(true)
@@ -64,8 +66,7 @@ export function FirstPersonController() {
       keys.current[e.code] = true
       if (e.code === "KeyE") {
         const s = useWorld.getState()
-        const inGame = s.touch ? s.started : s.locked
-        if (inGame && s.target && !s.activePanel) s.openPanel(s.target)
+        if (isPlayerActive(s) && s.target && !s.activePanel) s.openPanel(s.target)
       }
       if (["KeyW", "KeyA", "KeyS", "KeyD", "Space"].includes(e.code)) e.preventDefault()
     }
@@ -78,20 +79,45 @@ export function FirstPersonController() {
     }
   }, [])
 
+  // Pointer lock can never work in some environments: cross-origin iframes
+  // without allow="pointer-lock", sandboxed embeds, and several in-app
+  // webviews. Detect those up front and switch to drag-look immediately, so
+  // drei's controls never mount and never log "Unable to use Pointer Lock".
+  useEffect(() => {
+    if (touch) return
+    let blocked = false
+    try {
+      if (typeof document.body.requestPointerLock !== "function") blocked = true
+      const fp = (document as unknown as { featurePolicy?: { allowsFeature?: (f: string) => boolean } }).featurePolicy
+      if (fp?.allowsFeature && !fp.allowsFeature("pointer-lock")) blocked = true
+    } catch {
+      blocked = true
+    }
+    if (blocked) useWorld.getState().setLockFallback(true)
+  }, [touch])
+
   // Lock/unlock wiring (desktop pointer lock only). Use the standard
   // pointerlockchange event (robust) instead of the drei controls' own events,
   // and attach the request listener unconditionally — the controls ref is
   // populated asynchronously, so depending on it here would (and did) silently
   // drop the listener and break Resume.
   useEffect(() => {
-    if (touch) return
+    if (touch || lockFallback) return
     const onChange = () => {
       const locked = !!document.pointerLockElement
+      if (locked) everLocked.current = true
       useWorld.getState().setLocked(locked)
       if (!locked) keys.current = {}
     }
     const onError = () => {
-      // Chrome blocks re-locking for ~1s after Esc. Retry on the next click.
+      // If a lock has never succeeded this session, the environment simply
+      // doesn't permit it (iframe/webview) — fall back to drag-look instead
+      // of retrying forever. If it worked before, this is just Chrome's ~1s
+      // re-lock cooldown after Esc: retry on the next click.
+      if (!everLocked.current) {
+        useWorld.getState().setLockFallback(true)
+        return
+      }
       const retry = () => { try { controls.current?.lock() } catch {} }
       window.addEventListener("pointerdown", retry, { once: true })
     }
@@ -105,7 +131,43 @@ export function FirstPersonController() {
       document.removeEventListener("pointerlockerror", onError)
       window.removeEventListener("world-request-lock", onRequest)
     }
-  }, [touch])
+  }, [touch, lockFallback])
+
+  // Fallback look: drag the mouse (or pen) when pointer lock is unavailable.
+  // Feeds the same accumulator as touch-look, so the frame loop is shared.
+  useEffect(() => {
+    if (touch || !lockFallback) return
+    let dragging = false
+    let lastX = 0
+    let lastY = 0
+    const down = (e: PointerEvent) => {
+      const s = useWorld.getState()
+      if (!s.started || s.activePanel) return
+      const el = e.target as HTMLElement | null
+      if (el?.closest?.("button, a, input, textarea, .mc-panel, .mc-overlay, .mc-hotbar, .mc-topright, .mc-quest-chip")) return
+      dragging = true
+      lastX = e.clientX
+      lastY = e.clientY
+    }
+    const move = (e: PointerEvent) => {
+      if (!dragging) return
+      touchInput.lookDX += e.clientX - lastX
+      touchInput.lookDY += e.clientY - lastY
+      lastX = e.clientX
+      lastY = e.clientY
+    }
+    const up = () => { dragging = false }
+    window.addEventListener("pointerdown", down)
+    window.addEventListener("pointermove", move)
+    window.addEventListener("pointerup", up)
+    window.addEventListener("pointercancel", up)
+    return () => {
+      window.removeEventListener("pointerdown", down)
+      window.removeEventListener("pointermove", move)
+      window.removeEventListener("pointerup", up)
+      window.removeEventListener("pointercancel", up)
+    }
+  }, [touch, lockFallback])
 
   // Close panel -> nothing; open panel -> release pointer so HTML is usable.
   useEffect(() => {
@@ -136,11 +198,11 @@ export function FirstPersonController() {
   useFrame((_, dtRaw) => {
     const dt = Math.min(dtRaw, 0.05)
     const s = useWorld.getState()
-    const active = (s.touch ? s.started : s.locked) && !s.activePanel
+    const active = isPlayerActive(s) && !s.activePanel
 
     if (active) {
-      // Touch look: apply accumulated drag deltas to yaw/pitch directly.
-      if (s.touch) {
+      // Touch / drag-look: apply accumulated drag deltas to yaw/pitch directly.
+      if (s.touch || s.lockFallback) {
         const [dx, dy] = consumeLook()
         yaw.current -= dx * LOOK_SPEED
         pitch.current = Math.max(-MAX_PITCH, Math.min(MAX_PITCH, pitch.current - dy * LOOK_SPEED))
@@ -214,5 +276,8 @@ export function FirstPersonController() {
     }
   })
 
-  return touch ? null : <PointerLockControls ref={controls} />
+  // In fallback mode the drei controls must not mount at all — they attach a
+  // click-to-lock handler to the canvas that would retry (and log errors) on
+  // every click in environments where the lock can never be granted.
+  return touch || lockFallback ? null : <PointerLockControls ref={controls} />
 }

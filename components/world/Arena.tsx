@@ -5,7 +5,7 @@ import { Billboard, Text } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
 import * as THREE from "three"
 import { useBlockTextures } from "./useBlockTextures"
-import { useWorld } from "@/lib/world/store"
+import { isPlayerActive, useWorld } from "@/lib/world/store"
 import { touchInput } from "@/lib/world/touchInput"
 import { ARENA, STATIONS } from "@/lib/world/worldData"
 
@@ -88,12 +88,15 @@ export function Arena() {
 
   const duelStation = useMemo(() => STATIONS.find((s) => s.id === "duel")!, [])
 
-  // Desktop throw: left click while locked mid-duel. Touch uses its own button.
+  // Desktop throw: left click mid-duel (pointer-locked or drag-look fallback).
+  // Touch uses its own button.
   useEffect(() => {
     const onDown = (e: MouseEvent) => {
       if (e.button !== 0) return
       const s = useWorld.getState()
-      if (s.touch || !s.locked || s.activePanel || s.duel.phase !== "playing") return
+      if (s.touch || !isPlayerActive(s) || s.activePanel || s.duel.phase !== "playing") return
+      const el = e.target as HTMLElement | null
+      if (el?.closest?.("button, a, input, .mc-panel, .mc-overlay, .mc-hotbar")) return
       throwQueued.current = true
     }
     window.addEventListener("mousedown", onDown)
@@ -127,7 +130,7 @@ export function Arena() {
 
     if (phase === "countdown" && Date.now() >= s.duel.countdownEnd) s.setDuelPhase("playing")
 
-    const active = (s.touch ? s.started : s.locked) && !s.activePanel
+    const active = isPlayerActive(s) && !s.activePanel
 
     if (phase === "playing" && active) {
       // Forfeit quietly if the player wanders far from the arena.

@@ -404,6 +404,7 @@ export function Hud() {
   const activePanel = useWorld((s) => s.activePanel)
   const openPanel = useWorld((s) => s.openPanel)
   const duelPhase = useWorld((s) => s.duel.phase)
+  const lockFallback = useWorld((s) => s.lockFallback)
   const [help, setHelp] = useState(false)
   const [quests, setQuests] = useState(false)
 
@@ -448,15 +449,20 @@ export function Hud() {
 
   if (!started) return <StartGate />
 
-  const inGame = (touch ? started : locked) && !activePanel
+  const inGame = (touch || lockFallback ? started : locked) && !activePanel
   const duelBusy = duelPhase !== "idle"
   const duelOver = duelPhase === "won" || duelPhase === "lost"
-  const paused = !touch && !locked && !activePanel && !help && !quests && !duelOver
+  const paused = !touch && !lockFallback && !locked && !activePanel && !help && !quests && !duelOver
 
   return (
     <>
       {inGame && !touch && <Crosshair />}
       {inGame && <Coords />}
+      {inGame && !touch && lockFallback && (
+        <div className="mc-coords mc" style={{ top: 84, color: "#cbd5e1" }}>
+          🖱 drag to look · WASD to move
+        </div>
+      )}
       {inGame && !touch && !duelBusy && <InteractPrompt />}
       {inGame && touch && <TouchControls />}
       {!activePanel && !duelBusy && <Hotbar />}

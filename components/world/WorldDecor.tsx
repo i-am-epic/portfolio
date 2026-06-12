@@ -55,7 +55,10 @@ function Clouds() {
 }
 
 // ---------- lamp post with flickering light ----------
-function Lamp({ pos, mats }: { pos: [number, number, number]; mats: DMats }) {
+// `lit` adds a real PointLight; the rest glow via the emissive cap only.
+// Forward rendering pays per-fragment for every light, so the scene keeps a
+// small light budget (~6 point lights total) and fakes the others.
+function Lamp({ pos, mats, lit = false }: { pos: [number, number, number]; mats: DMats; lit?: boolean }) {
   const light = useRef<THREE.PointLight>(null!)
   useFrame((s) => {
     if (light.current) light.current.intensity = 6 + Math.sin(s.clock.elapsedTime * 12 + pos[0]) * 1.6
@@ -64,7 +67,7 @@ function Lamp({ pos, mats }: { pos: [number, number, number]; mats: DMats }) {
     <group position={pos}>
       <mesh position={[0, 1.2, 0]} material={mats.log} castShadow><boxGeometry args={[0.22, 2.4, 0.22]} /></mesh>
       <mesh position={[0, 2.5, 0]} material={mats.glow} castShadow><boxGeometry args={[0.45, 0.45, 0.45]} /></mesh>
-      <pointLight ref={light} position={[0, 2.5, 0]} color="#ffcf8a" intensity={6} distance={11} decay={2} />
+      {lit && <pointLight ref={light} position={[0, 2.5, 0]} color="#ffcf8a" intensity={6} distance={11} decay={2} />}
     </group>
   )
 }
@@ -96,14 +99,18 @@ function Fence({ from, to, mats }: { from: [number, number]; to: [number, number
 function Flowers() {
   const flowers = useMemo(() => {
     const colors = ["#ef4444", "#f59e0b", "#ec4899", "#a855f7", "#ffffff"]
-    return Array.from({ length: 30 }, () => {
+    // Keep flowers off the built-up zones (orb arena west, sim lab east).
+    const blocked = (x: number, z: number) =>
+      (x >= -30 && x <= -16 && z >= -20 && z <= -6) || (x >= 15 && x <= 29 && z >= 0 && z <= 12)
+    const out: { x: number; z: number; c: string }[] = []
+    while (out.length < 30) {
       const side = Math.random() < 0.5 ? -1 : 1
-      return {
-        x: side * (15 + Math.random() * 15),
-        z: -28 + Math.random() * 58,
-        c: colors[Math.floor(Math.random() * colors.length)],
-      }
-    })
+      const x = side * (15 + Math.random() * 15)
+      const z = -28 + Math.random() * 58
+      if (blocked(x, z)) continue
+      out.push({ x, z, c: colors[Math.floor(Math.random() * colors.length)] })
+    }
+    return out
   }, [])
   return (
     <group>
@@ -260,8 +267,8 @@ export function WorldDecor() {
       <Fireflies />
       <Cottage mats={mats} />
 
-      <Lamp pos={[-3, 0, 6]} mats={mats} />
-      <Lamp pos={[3, 0, 6]} mats={mats} />
+      <Lamp pos={[-3, 0, 6]} mats={mats} lit />
+      <Lamp pos={[3, 0, 6]} mats={mats} lit />
       <Lamp pos={[-3, 0, -12]} mats={mats} />
       <Lamp pos={[3, 0, -12]} mats={mats} />
       <Lamp pos={[-9, 0, 27]} mats={mats} />

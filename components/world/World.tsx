@@ -1,21 +1,27 @@
 "use client"
 
-import { Suspense } from "react"
+import { Suspense, useMemo, useState } from "react"
 import { Canvas } from "@react-three/fiber"
-import { Sky } from "@react-three/drei"
+import { PerformanceMonitor, Sky } from "@react-three/drei"
 import * as THREE from "three"
 import { VoxelWorld } from "./VoxelWorld"
 import { Structures } from "./Structures"
 import { WorldDecor } from "./WorldDecor"
+import { Landmarks } from "./Landmarks"
 import { FirstPersonController } from "./FirstPersonController"
 import { Ghosts } from "./Ghosts"
+import { Arena } from "./Arena"
+import { SimLab } from "./SimLab"
+import { PhysicsProps } from "./PhysicsProps"
+import { Birds } from "./Birds"
 import { Hud } from "./Hud"
 import { Panels } from "./Panels"
 import { SPAWN } from "@/lib/world/worldData"
+import { isTouchDevice } from "@/lib/world/touchInput"
 
 const SUN: [number, number, number] = [80, 70, 60]
 
-function Scene() {
+function Scene({ shadowMapSize }: { shadowMapSize: number }) {
   return (
     <>
       <Sky sunPosition={SUN} turbidity={6} rayleigh={1.2} mieCoefficient={0.006} mieDirectionalG={0.8} />
@@ -27,8 +33,8 @@ function Scene() {
         position={SUN}
         intensity={1.5}
         castShadow
-        shadow-mapSize-width={2048}
-        shadow-mapSize-height={2048}
+        shadow-mapSize-width={shadowMapSize}
+        shadow-mapSize-height={shadowMapSize}
         shadow-camera-near={1}
         shadow-camera-far={260}
         shadow-camera-left={-48}
@@ -42,6 +48,11 @@ function Scene() {
         <VoxelWorld />
         <Structures />
         <WorldDecor />
+        <Landmarks />
+        <Arena />
+        <SimLab />
+        <PhysicsProps />
+        <Birds />
         <Ghosts />
       </Suspense>
 
@@ -51,11 +62,17 @@ function Scene() {
 }
 
 export default function World() {
+  // Quality scaling: phones get a 1024px shadow map up front, and any device
+  // that can't hold frame rate drops to a lower DPR cap (PerformanceMonitor
+  // flips back if headroom returns).
+  const [degraded, setDegraded] = useState(false)
+  const shadowMapSize = useMemo(() => (isTouchDevice() ? 1024 : 2048), [])
+
   return (
     <div className="mc-root mc">
       <Canvas
         shadows
-        dpr={[1, 1.75]}
+        dpr={degraded ? [0.8, 1.2] : [1, 1.75]}
         camera={{ fov: 72, near: 0.1, far: 320, position: SPAWN.position }}
         // powerPreference "default" + failIfMajorPerformanceCaveat:false lets the
         // context fall back to software rendering (SwiftShader) instead of refusing
@@ -67,7 +84,12 @@ export default function World() {
         }}
         style={{ position: "absolute", inset: 0 }}
       >
-        <Scene />
+        <PerformanceMonitor
+          flipflops={3}
+          onDecline={() => setDegraded(true)}
+          onIncline={() => setDegraded(false)}
+        />
+        <Scene shadowMapSize={shadowMapSize} />
       </Canvas>
 
       <Hud />

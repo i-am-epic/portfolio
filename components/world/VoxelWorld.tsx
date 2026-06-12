@@ -3,7 +3,7 @@
 import { useLayoutEffect, useMemo, useRef } from "react"
 import * as THREE from "three"
 import { useBlockTextures } from "./useBlockTextures"
-import { buildGroundMap, TREES, type BlockType } from "@/lib/world/worldData"
+import { buildCoastCells, buildGroundMap, HILLS, TREES, type BlockType } from "@/lib/world/worldData"
 
 const BOX = new THREE.BoxGeometry(1, 1, 1)
 
@@ -55,21 +55,44 @@ export function VoxelWorld() {
     const trunks: [number, number, number][] = []
     const leaves: [number, number, number][] = []
     for (const t of TREES) {
-      for (let h = 0; h < t.height; h++) trunks.push([t.x, 0.5 + h, t.z])
+      const base = t.y ?? 0
+      for (let h = 0; h < t.height; h++) trunks.push([t.x, base + 0.5 + h, t.z])
       const top = t.height
       for (const dy of [top - 1, top]) {
         for (let dx = -2; dx <= 2; dx++) {
           for (let dz = -2; dz <= 2; dz++) {
             if (Math.abs(dx) === 2 && Math.abs(dz) === 2) continue
-            leaves.push([t.x + dx, 0.5 + dy, t.z + dz])
+            leaves.push([t.x + dx, base + 0.5 + dy, t.z + dz])
           }
         }
       }
-      leaves.push([t.x, 0.5 + top + 1, t.z])
-      for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) leaves.push([t.x + dx, 0.5 + top + 1, t.z + dz])
+      leaves.push([t.x, base + 0.5 + top + 1, t.z])
+      for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) leaves.push([t.x + dx, base + 0.5 + top + 1, t.z + dz])
     }
     return { trunks, leaves }
   }, [])
+
+  // Hills: rounded grass mounds (solid props — colliders live in worldData).
+  const hillBlocks = useMemo(() => {
+    const out: [number, number, number][] = []
+    for (const h of HILLS) {
+      for (let k = 0; k < h.h; k++) {
+        const rr = h.r - k * 1.1
+        for (let x = Math.ceil(h.x - rr); x <= Math.floor(h.x + rr); x++) {
+          for (let z = Math.ceil(h.z - rr); z <= Math.floor(h.z + rr); z++) {
+            if (Math.hypot(x - h.x, z - h.z) <= rr) out.push([x, 0.5 + k, z])
+          }
+        }
+      }
+    }
+    return out
+  }, [])
+
+  // Cliff sides: dirt + stone layers under every coastline cell, so the
+  // island has visible sides instead of floating as a 1-block sheet.
+  const coast = useMemo(() => buildCoastCells(), [])
+  const cliffDirt = useMemo(() => coast.map(([x, z]) => [x, -1.5, z] as [number, number, number]), [coast])
+  const cliffStone = useMemo(() => coast.map(([x, z]) => [x, -2.5, z] as [number, number, number]), [coast])
 
   // Surrounding sea.
   const seaMat = useMemo(() => {
@@ -86,6 +109,9 @@ export function VoxelWorld() {
       {ground.map((g) => (
         <InstancedBlocks key={g.type} positions={g.positions} material={materials[g.type]} />
       ))}
+      <InstancedBlocks positions={hillBlocks} material={materials.grass} cast />
+      <InstancedBlocks positions={cliffDirt} material={materials.dirt} />
+      <InstancedBlocks positions={cliffStone} material={materials.stone} />
       <InstancedBlocks positions={trunks} material={materials.oak_log} cast />
       <InstancedBlocks positions={leaves} material={materials.leaves} cast />
 

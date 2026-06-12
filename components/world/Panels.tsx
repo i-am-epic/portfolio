@@ -4,9 +4,13 @@ import { useEffect, useRef, useState } from "react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import { SlotMachine } from "./SlotMachine"
+import { SandSim } from "./sims/SandSim"
+import { BoidsSim } from "./sims/BoidsSim"
+import { OrbitSim } from "./sims/OrbitSim"
 import { useWorld } from "@/lib/world/store"
 import {
   CHARACTER_BUILD,
+  DUEL_TARGET_HITS,
   IMPACT_STATS,
   PATCH_NOTES,
   PROFILE,
@@ -253,6 +257,60 @@ function PatchPanel() {
   )
 }
 
+function SimPanel({ it }: { it: Interactable }) {
+  const titles = {
+    sand: "🏜 Falling Sand",
+    boids: "🐦 Boids Flock",
+    orbit: "🪐 Orbit Sandbox",
+  } as const
+  const simId = it.simId ?? "sand"
+  return (
+    <PanelShell title={titles[simId]} width={660}>
+      {simId === "sand" && <SandSim />}
+      {simId === "boids" && <BoidsSim />}
+      {simId === "orbit" && <OrbitSim />}
+    </PanelShell>
+  )
+}
+
+function DuelPanel() {
+  const close = useWorld((s) => s.closePanel)
+  const startDuel = useWorld((s) => s.startDuel)
+  const touch = useWorld((s) => s.touch)
+  const begin = () => {
+    close()
+    startDuel()
+    if (!touch) window.dispatchEvent(new Event("world-request-lock"))
+  }
+  return (
+    <PanelShell title="⚔ Orb Arena" width={500}>
+      <p style={{ fontSize: 14, color: "#d6d8de", lineHeight: 1.6, marginBottom: 12 }}>
+        <b style={{ color: "#22d3ee" }}>EPIC-BOT</b> guards this arena. First to{" "}
+        <b style={{ color: "#facc15" }}>{DUEL_TARGET_HITS} hits</b> wins. It strafes, it leads its throws, and it
+        dodges yours — keep moving.
+      </p>
+      <div className="mc-slot" style={{ fontSize: 13, lineHeight: 1.9, marginBottom: 14 }}>
+        {touch ? (
+          <>
+            <div>🔮 Tap <b>Throw</b> to hurl an orb</div>
+            <div>🏃 Use the stick to dodge — jumping helps</div>
+          </>
+        ) : (
+          <>
+            <div>🔮 <b>Left click</b> — throw an orb (it arcs, lead your shots)</div>
+            <div>🏃 <span className="mc-key">W</span><span className="mc-key">A</span><span className="mc-key">S</span><span className="mc-key">D</span> + <span className="mc-key">Space</span> — dodge</div>
+          </>
+        )}
+        <div style={{ color: "#9aa0ac" }}>Versus a live visitor — coming soon. For now the bot holds the title.</div>
+      </div>
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+        <button className="mc-btn mc-btn--accent" style={{ fontSize: 15 }} onClick={begin}>⚔ Start duel</button>
+        <button className="mc-btn mc-btn--ghost" onClick={close}>Maybe later</button>
+      </div>
+    </PanelShell>
+  )
+}
+
 function WelcomePanel() {
   const close = useWorld((s) => s.closePanel)
   return (
@@ -262,6 +320,8 @@ function WelcomePanel() {
       <div className="mc-slot" style={{ fontSize: 13, lineHeight: 1.7, marginBottom: 14 }}>
         <p>🧭 Walk the <b>Spawn Plaza</b> — talk to <b>NAVI</b>, spin the <b>Jukebox</b>, read the <b>Character Build</b> & <b>Impact Board</b>.</p>
         <p>📦 Head into the <b>Project Hall</b> — open chests to explore 17 builds.</p>
+        <p>⚔ Follow the west path to the <b>Orb Arena</b> and duel <b>EPIC-BOT</b>.</p>
+        <p>🧪 Follow the east path to the <b>Simulation Lab</b> — sand, boids & orbits you can poke.</p>
         <p>🌀 Reach the <b>Contact Portal</b> at the far end to get in touch.</p>
       </div>
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
@@ -294,6 +354,8 @@ export function Panels() {
       case "patch": return <PatchPanel />
       case "welcome": return <WelcomePanel />
       case "slot": return <SlotMachine onClose={close} />
+      case "sim": return <SimPanel it={it} />
+      case "duel": return <DuelPanel />
       default: return null
     }
   }

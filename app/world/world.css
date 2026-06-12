@@ -240,6 +240,40 @@
 @keyframes mc-toast-in { from { transform: translate(-50%, -120%); } to { transform: translate(-50%, 0); } }
 @keyframes mc-toast-out { to { transform: translate(-50%, -130%); opacity: 0; } }
 
+/* Orb duel HUD */
+.mc-duel-score {
+  position: absolute; top: 60px; left: 50%; transform: translateX(-50%); z-index: 12;
+  padding: 8px 18px; font-size: 18px; text-align: center;
+  background: rgba(10, 11, 14, 0.7); border: 3px solid #15161b;
+  box-shadow: inset 2px 2px 0 0 #4a4c58, inset -2px -2px 0 0 #101117;
+  text-shadow: 1px 1px 0 #000; pointer-events: none;
+}
+.mc-duel-countdown {
+  position: absolute; top: 38%; left: 50%; transform: translate(-50%, -50%); z-index: 12;
+  font-size: 72px; color: #22d3ee; text-shadow: 4px 4px 0 #000;
+  pointer-events: none; animation: mc-count-pop 0.9s ease infinite;
+}
+@keyframes mc-count-pop {
+  0% { transform: translate(-50%, -50%) scale(0.7); opacity: 0.4; }
+  30% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 0.9; }
+}
+.mc-flash {
+  position: absolute; inset: 0; z-index: 11; pointer-events: none;
+  animation: mc-flash-fade 0.32s ease forwards;
+}
+.mc-flash--hurt { box-shadow: inset 0 0 140px 50px rgba(239, 68, 68, 0.6); }
+.mc-flash--score { box-shadow: inset 0 0 110px 30px rgba(34, 211, 238, 0.4); }
+@keyframes mc-flash-fade { from { opacity: 1; } to { opacity: 0; } }
+
+/* Simulation lab panels */
+.mc-simcanvas {
+  display: block; width: 100%; height: auto;
+  image-rendering: pixelated; background: #0b0d12;
+  box-shadow: inset 0 0 0 3px #15161b; touch-action: none;
+}
+.mc-simbar { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+
 /* Touch controls: virtual joystick + action buttons */
 .mc-stick {
   position: absolute; left: 26px; bottom: 96px; z-index: 8;

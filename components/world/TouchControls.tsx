@@ -14,6 +14,7 @@ const STICK_RADIUS = 56
 export function TouchControls() {
   const target = useWorld((s) => s.target)
   const openPanel = useWorld((s) => s.openPanel)
+  const dueling = useWorld((s) => s.duel.phase === "playing")
 
   const baseRef = useRef<HTMLDivElement>(null)
   const knobRef = useRef<HTMLDivElement>(null)
@@ -102,7 +103,19 @@ export function TouchControls() {
       </div>
 
       <div className="mc-touch-actions">
-        {target && (
+        {dueling && (
+          <button
+            className="mc-btn mc-btn--accent mc-touch-btn"
+            style={{ fontSize: 15 }}
+            onTouchStart={(e) => {
+              e.stopPropagation()
+              touchInput.throwOrb = true
+            }}
+          >
+            🔮 Throw
+          </button>
+        )}
+        {target && !dueling && (
           <button
             className="mc-btn mc-btn--accent mc-touch-btn mc-touch-btn--interact"
             onClick={() => openPanel(target)}

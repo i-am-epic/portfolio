@@ -26,7 +26,7 @@ const MAX_PITCH = 1.45
 type Keys = Record<string, boolean>
 
 export function FirstPersonController() {
-  const { camera } = useThree()
+  const { camera, scene, gl } = useThree()
   const touch = useWorld((s) => s.touch)
   const controls = useRef<any>(null)
   const keys = useRef<Keys>({})
@@ -51,9 +51,12 @@ export function FirstPersonController() {
     yaw.current = e.y
     pitch.current = e.x
     if (process.env.NODE_ENV !== "production") {
-      ;(window as unknown as { __cam?: THREE.Camera }).__cam = camera
+      const w = window as unknown as { __cam?: THREE.Camera; __scene?: THREE.Scene; __gl?: THREE.WebGLRenderer }
+      w.__cam = camera
+      w.__scene = scene
+      w.__gl = gl
     }
-  }, [camera])
+  }, [camera, scene, gl])
 
   // Keyboard.
   useEffect(() => {

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import { useProgress } from "@react-three/drei"
 import { useWorld } from "@/lib/world/store"
 import { ACHIEVEMENTS, formatMs, useAchievements } from "@/lib/world/achievements"
-import { PROFILE, PROJECT_CHESTS, STATIONS, type InteractKind } from "@/lib/world/worldData"
+import { DUEL_TARGET_HITS, PROFILE, PROJECT_CHESTS, STATIONS, type InteractKind } from "@/lib/world/worldData"
 import { TouchControls } from "./TouchControls"
 
 const requestLock = () => window.dispatchEvent(new Event("world-request-lock"))
@@ -164,11 +164,96 @@ function InteractPrompt() {
     project: "inspect", rag: "talk to NAVI", jukebox: "play record",
     contact: "enter portal", stats: "read board", impact: "read board",
     patch: "open book", welcome: "read sign", slot: "play slots",
+    duel: "challenge EPIC-BOT", sim: "run simulation",
   }
   return (
     <div className="mc-prompt mc">
       <span className="mc-key">E</span> {verb[target.kind] || "interact"} — <b style={{ color: target.color || "#fff" }}>{target.title}</b>
     </div>
+  )
+}
+
+// --- Orb duel HUD --------------------------------------------------------------
+
+function DuelHud() {
+  const duel = useWorld((s) => s.duel)
+  const touch = useWorld((s) => s.touch)
+  const startDuel = useWorld((s) => s.startDuel)
+  const endDuel = useWorld((s) => s.endDuel)
+  const [flash, setFlash] = useState<"player" | "bot" | null>(null)
+  const [, tick] = useState(0)
+
+  // Re-render every 150ms during the countdown so the big number updates.
+  useEffect(() => {
+    if (duel.phase !== "countdown") return
+    const t = setInterval(() => tick((n) => n + 1), 150)
+    return () => clearInterval(t)
+  }, [duel.phase])
+
+  // Hit feedback flashes.
+  useEffect(() => {
+    const onHit = (e: Event) => {
+      const who = (e as CustomEvent<{ who: "player" | "bot" }>).detail?.who
+      if (!who) return
+      setFlash(who)
+      setTimeout(() => setFlash(null), 320)
+    }
+    window.addEventListener("world-duel-hit", onHit)
+    return () => window.removeEventListener("world-duel-hit", onHit)
+  }, [])
+
+  // Result screens need the cursor back on desktop.
+  const over = duel.phase === "won" || duel.phase === "lost"
+  useEffect(() => {
+    if (over && document.pointerLockElement) document.exitPointerLock()
+  }, [over])
+
+  if (duel.phase === "idle") return null
+
+  const rematch = () => {
+    startDuel()
+    if (!touch) requestLock()
+  }
+  const leave = () => {
+    endDuel()
+    if (!touch) requestLock()
+  }
+  const secondsLeft = Math.max(0, Math.ceil((duel.countdownEnd - Date.now()) / 1000))
+
+  return (
+    <>
+      {flash === "player" && <div className="mc-flash mc-flash--hurt" />}
+      {flash === "bot" && <div className="mc-flash mc-flash--score" />}
+
+      <div className="mc-duel-score mc">
+        <span style={{ color: "#ff9d5c" }}>YOU {duel.playerHits}</span>
+        <span style={{ color: "#9aa0ac" }}> — </span>
+        <span style={{ color: "#22d3ee" }}>{duel.botHits} BOT</span>
+        <div style={{ fontSize: 10, color: "#9aa0ac", marginTop: 2 }}>
+          first to {DUEL_TARGET_HITS} · {touch ? "tap THROW" : "click to throw"}
+        </div>
+      </div>
+
+      {duel.phase === "countdown" && (
+        <div className="mc-duel-countdown mc">{secondsLeft > 0 ? secondsLeft : "GO!"}</div>
+      )}
+
+      {over && (
+        <div className="mc-fullscreen mc" style={{ background: "rgba(5,6,9,0.72)" }}>
+          <h2 style={{ fontSize: 34, color: duel.phase === "won" ? "#facc15" : "#f87171", textShadow: "2px 2px 0 #000", margin: 0 }}>
+            {duel.phase === "won" ? "🏅 VICTORY!" : "💀 EPIC-BOT WINS"}
+          </h2>
+          <p style={{ fontSize: 15, color: "#cbd5e1" }}>
+            {duel.playerHits} — {duel.botHits}
+            {duel.phase === "won" ? " · The arena crown is yours." : " · It calculated your dodge. Rude."}
+          </p>
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
+            <button className="mc-btn mc-btn--accent" style={{ fontSize: 15, padding: "11px 20px" }} onClick={rematch}>⚔ Rematch</button>
+            <button className="mc-btn mc-btn--ghost" style={{ fontSize: 15, padding: "11px 20px" }} onClick={leave}>Walk away</button>
+          </div>
+        </div>
+      )}
+    </>
   )
 }
 
@@ -318,6 +403,7 @@ export function Hud() {
   const touch = useWorld((s) => s.touch)
   const activePanel = useWorld((s) => s.activePanel)
   const openPanel = useWorld((s) => s.openPanel)
+  const duelPhase = useWorld((s) => s.duel.phase)
   const [help, setHelp] = useState(false)
   const [quests, setQuests] = useState(false)
 
@@ -363,16 +449,19 @@ export function Hud() {
   if (!started) return <StartGate />
 
   const inGame = (touch ? started : locked) && !activePanel
-  const paused = !touch && !locked && !activePanel && !help && !quests
+  const duelBusy = duelPhase !== "idle"
+  const duelOver = duelPhase === "won" || duelPhase === "lost"
+  const paused = !touch && !locked && !activePanel && !help && !quests && !duelOver
 
   return (
     <>
       {inGame && !touch && <Crosshair />}
       {inGame && <Coords />}
-      {inGame && !touch && <InteractPrompt />}
+      {inGame && !touch && !duelBusy && <InteractPrompt />}
       {inGame && touch && <TouchControls />}
-      {!activePanel && <Hotbar />}
-      {!activePanel && <QuestChip onOpen={() => setQuests(true)} />}
+      {!activePanel && !duelBusy && <Hotbar />}
+      {!activePanel && !duelBusy && <QuestChip onOpen={() => setQuests(true)} />}
+      <DuelHud />
       <AchievementToast />
 
       <div className="mc-topright mc">

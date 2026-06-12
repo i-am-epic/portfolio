@@ -12,6 +12,8 @@ export const touchInput = {
   lookDY: 0,
   /** One-shot jump request (consumed by the controller). */
   jump: false,
+  /** One-shot orb-throw request during a duel (consumed by the arena). */
+  throwOrb: false,
 }
 
 export function consumeLook(): [number, number] {

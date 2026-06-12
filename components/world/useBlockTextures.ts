@@ -20,6 +20,7 @@ const FILES: Record<string, string> = {
   glowstone: "/textures/blocks/glowstone.png",
   brand: "/textures/blocks/brand_block.png",
   path: "/textures/blocks/path.png",
+  sand: "/textures/blocks/sand.png",
 }
 
 type Mat = THREE.Material | THREE.Material[]
@@ -95,6 +96,7 @@ export function useBlockTextures(): BlockTextures {
       glowstone: glow,
       brand: brand,
       path: make("path"),
+      sand: make("sand"),
     }
     void single
 

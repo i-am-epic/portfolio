@@ -110,21 +110,49 @@ export const TAG_COLOR: Record<Tag, string> = {
 export type BlockType =
   | "grass" | "dirt" | "stone" | "cobblestone" | "stone_bricks"
   | "oak_planks" | "dark_planks" | "oak_log" | "leaves" | "glass"
-  | "water" | "glowstone" | "brand" | "path"
+  | "water" | "glowstone" | "brand" | "path" | "sand"
 
 type Rect = { type: BlockType; x0: number; x1: number; z0: number; z1: number }
 
 // Applied in order; later rects override earlier cells.
 const GROUND_REGIONS: Rect[] = [
   { type: "grass", x0: -32, x1: 32, z0: -32, z1: 32 },
+  // beach ring along the island rim (organic fringe extends it outward)
+  { type: "sand", x0: -32, x1: 32, z0: -32, z1: -31 },
+  { type: "sand", x0: -32, x1: 32, z0: 31, z1: 32 },
+  { type: "sand", x0: -32, x1: -31, z0: -32, z1: 32 },
+  { type: "sand", x0: 31, x1: 32, z0: -32, z1: 32 },
   { type: "oak_planks", x0: -13, x1: 13, z0: -30, z1: 9 }, // project hall
   { type: "stone_bricks", x0: -11, x1: 11, z0: 9, z1: 28 }, // spawn plaza
   { type: "cobblestone", x0: -6, x1: 6, z0: -32, z1: -28 }, // portal pad
+  { type: "dark_planks", x0: -29, x1: -17, z0: -19, z1: -7 }, // orb duel arena
+  { type: "stone", x0: 16, x1: 28, z0: 1, z1: 11 }, // simulation lab
   { type: "path", x0: -1, x1: 1, z0: -28, z1: 28 }, // central aisle
+  { type: "path", x0: -17, x1: -1, z0: -13, z1: -11 }, // spur to the arena
+  { type: "path", x0: 1, x1: 16, z0: 5, z1: 7 }, // spur to the sim lab
 ]
+
+/**
+ * Organic beach silhouette: outside the walkable square the shoreline radius
+ * wobbles with two sine octaves, so the island reads as a natural land mass
+ * instead of a cut-out square. Deterministic — no hydration/replay drift.
+ */
+const FRINGE_MAX = 41
+const fringeRadius = (theta: number) =>
+  34.5 + 3.5 * Math.sin(theta * 3 + 1.3) + 2.2 * Math.sin(theta * 7 + 0.6)
+
+function isFringe(x: number, z: number): boolean {
+  if (Math.max(Math.abs(x), Math.abs(z)) <= 32) return false
+  return Math.hypot(x, z) <= fringeRadius(Math.atan2(z, x))
+}
 
 export function buildGroundMap(): Record<BlockType, [number, number][]> {
   const map = new Map<string, BlockType>()
+  for (let x = -FRINGE_MAX; x <= FRINGE_MAX; x++) {
+    for (let z = -FRINGE_MAX; z <= FRINGE_MAX; z++) {
+      if (isFringe(x, z)) map.set(`${x},${z}`, "sand")
+    }
+  }
   for (const r of GROUND_REGIONS) {
     for (let x = r.x0; x <= r.x1; x++) {
       for (let z = r.z0; z <= r.z1; z++) {
@@ -140,22 +168,66 @@ export function buildGroundMap(): Record<BlockType, [number, number][]> {
   return out
 }
 
-export type Tree = { x: number; z: number; height: number }
+/**
+ * Land cells whose 4-neighbourhood touches water — these get dirt + stone
+ * cliff layers below the rim so the island has visible sides from the sea.
+ */
+export function buildCoastCells(): [number, number][] {
+  const land = new Set<string>()
+  for (let x = -FRINGE_MAX; x <= FRINGE_MAX; x++) {
+    for (let z = -FRINGE_MAX; z <= FRINGE_MAX; z++) {
+      if (Math.max(Math.abs(x), Math.abs(z)) <= 32 || isFringe(x, z)) land.add(`${x},${z}`)
+    }
+  }
+  const coast: [number, number][] = []
+  for (const key of land) {
+    const [x, z] = key.split(",").map(Number)
+    if (!land.has(`${x + 1},${z}`) || !land.has(`${x - 1},${z}`) || !land.has(`${x},${z + 1}`) || !land.has(`${x},${z - 1}`)) {
+      coast.push([x, z])
+    }
+  }
+  return coast
+}
+
+// --- Hills (grass mounds; solid — players walk around them) -----------------
+
+export type Hill = { x: number; z: number; r: number; h: number }
+export const HILLS: Hill[] = [
+  { x: -28, z: 27, r: 3.2, h: 2 }, // NW: tree-topped
+  { x: 26, z: 24, r: 3.2, h: 2 }, // NE: windmill
+  { x: 26, z: -22, r: 3.2, h: 2 }, // SE: lighthouse
+]
+
+/** Z positions of the project-hall pergola pillars (x = ±12.5). */
+export const COLONNADE_Z = [7, 1, -5, -11, -17, -23]
+
+export type Tree = { x: number; z: number; height: number; /** ground offset (hill tops) */ y?: number }
 export const TREES: Tree[] = [
-  { x: -22, z: 20, height: 5 }, { x: 23, z: 22, height: 6 },
+  { x: -22, z: 20, height: 5 },
   { x: -26, z: -4, height: 5 }, { x: 27, z: -2, height: 6 },
   { x: -20, z: -24, height: 5 }, { x: 22, z: -26, height: 5 },
   { x: -28, z: 12, height: 6 }, { x: 28, z: 14, height: 5 },
+  { x: -28, z: 27, height: 4, y: 2 }, // crowns the NW hill
 ]
 
 // --- Colliders (XZ axis-aligned boxes; treated as full-height walls) --------
 
 export type Collider = { x0: number; x1: number; z0: number; z1: number }
 
+// --- Arena + Sim Lab zones ---------------------------------------------------
+
+/** Orb-duel arena footprint (matches the dark_planks ground region). */
+export const ARENA = { x0: -29, x1: -17, z0: -19, z1: -7, cx: -23, cz: -13 }
+/** First to this many orb hits wins a duel. */
+export const DUEL_TARGET_HITS = 5
+
+export type SimId = "sand" | "boids" | "orbit"
+
 // --- Interactables ----------------------------------------------------------
 
 export type InteractKind =
   | "project" | "rag" | "jukebox" | "contact" | "stats" | "impact" | "patch" | "welcome" | "credits" | "slot"
+  | "duel" | "sim"
 
 export type Interactable = {
   id: string
@@ -166,6 +238,7 @@ export type Interactable = {
   subtitle?: string
   color?: string
   project?: Project
+  simId?: SimId
 }
 
 // Project chests laid out in a grid inside the hall.
@@ -202,6 +275,10 @@ export const STATIONS: Interactable[] = [
   { id: "patch", kind: "patch", position: [0, 0, 25], radius: 2.6, title: "Patch Notes", subtitle: "Lore log", color: "#facc15" },
   { id: "slot", kind: "slot", position: [9, 0, 14], radius: 3, title: "Lucky Blocks", subtitle: "Spin to win!", color: "#facc15" },
   { id: "contact", kind: "contact", position: [0, 0, -29], radius: 4, title: "Contact Portal", subtitle: "Let's build together", color: "#a855f7" },
+  { id: "duel", kind: "duel", position: [-18, 0, -12], radius: 3.4, title: "Orb Arena", subtitle: "Duel EPIC-BOT", color: "#22d3ee" },
+  { id: "sim-sand", kind: "sim", simId: "sand", position: [20, 0, 3], radius: 2.6, title: "Falling Sand", subtitle: "Cellular automata", color: "#fbbf24" },
+  { id: "sim-boids", kind: "sim", simId: "boids", position: [20, 0, 9], radius: 2.6, title: "Boids Flock", subtitle: "Emergent behaviour", color: "#38bdf8" },
+  { id: "sim-orbit", kind: "sim", simId: "orbit", position: [26, 0, 6], radius: 2.6, title: "Orbit Sandbox", subtitle: "N-body gravity", color: "#c084fc" },
 ]
 
 export const INTERACTABLES: Interactable[] = [...PROJECT_CHESTS, ...STATIONS]
@@ -219,6 +296,30 @@ export const COLLIDERS: Collider[] = [
   { x0: -1.5, x1: 1.5, z0: 12.4, z1: 13.6 }, // welcome sign
   { x0: 8.2, x1: 9.8, z0: 13.2, z1: 14.8 }, // slot machine
   { x0: -2.5, x1: 2.5, z0: -29.6, z1: -28.4 }, // portal frame
+  // orb arena: duel console + corner pillars
+  { x0: -18.6, x1: -17.4, z0: -12.6, z1: -11.4 },
+  { x0: -29, x1: -28.1, z0: -19, z1: -18.1 },
+  { x0: -17.9, x1: -17, z0: -19, z1: -18.1 },
+  { x0: -29, x1: -28.1, z0: -7.9, z1: -7 },
+  { x0: -17.9, x1: -17, z0: -7.9, z1: -7 },
+  // sim lab: exhibit pedestals + pavilion pillars
+  { x0: 19.4, x1: 20.6, z0: 2.4, z1: 3.6 },
+  { x0: 19.4, x1: 20.6, z0: 8.4, z1: 9.6 },
+  { x0: 25.4, x1: 26.6, z0: 5.4, z1: 6.6 },
+  { x0: 16.2, x1: 17, z0: 1.2, z1: 2 },
+  { x0: 27, x1: 27.8, z0: 1.2, z1: 2 },
+  { x0: 16.2, x1: 17, z0: 10, z1: 10.8 },
+  { x0: 27, x1: 27.8, z0: 10, z1: 10.8 },
+  // hills (windmill + lighthouse stand on top)
+  ...HILLS.map((h) => ({ x0: h.x - h.r, x1: h.x + h.r, z0: h.z - h.r, z1: h.z + h.r })),
+  // project hall gate arch pillars
+  { x0: 1.6, x1: 2.4, z0: 8.1, z1: 8.9 },
+  { x0: -2.4, x1: -1.6, z0: 8.1, z1: 8.9 },
+  // hall pergola pillars
+  ...COLONNADE_Z.flatMap((z) => [
+    { x0: 12.2, x1: 12.8, z0: z - 0.3, z1: z + 0.3 },
+    { x0: -12.8, x1: -12.2, z0: z - 0.3, z1: z + 0.3 },
+  ]),
   // cottage walls (front door gap at x -22..-20 lets you walk in)
   { x0: -24, x1: -18, z0: 19.5, z1: 20.5 }, // back
   { x0: -24.5, x1: -23.5, z0: 14, z1: 20 }, // left

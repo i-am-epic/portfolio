@@ -459,7 +459,7 @@ export function Hud() {
       {inGame && !touch && <Crosshair />}
       {inGame && <Coords />}
       {inGame && !touch && lockFallback && (
-        <div className="mc-coords mc" style={{ top: 84, color: "#cbd5e1" }}>
+        <div className="mc-lookhint mc" style={{ top: 84 }}>
           🖱 drag to look · WASD to move
         </div>
       )}

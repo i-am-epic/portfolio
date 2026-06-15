@@ -240,6 +240,14 @@
 @keyframes mc-toast-in { from { transform: translate(-50%, -120%); } to { transform: translate(-50%, 0); } }
 @keyframes mc-toast-out { to { transform: translate(-50%, -130%); opacity: 0; } }
 
+/* Drag-look hint (pointer-lock fallback mode) — kept visible at all sizes */
+.mc-lookhint {
+  position: absolute; left: 12px; top: 52px;
+  padding: 6px 10px; font-size: 12px;
+  background: rgba(10, 11, 14, 0.55);
+  text-shadow: 1px 1px 0 #000; color: #cbd5e1;
+}
+
 /* Orb duel HUD */
 .mc-duel-score {
   position: absolute; top: 60px; left: 50%; transform: translateX(-50%); z-index: 12;

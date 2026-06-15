@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef } from "react"
 import { useFrame, useThree } from "@react-three/fiber"
 import * as THREE from "three"
-import { useWorld } from "@/lib/world/store"
+import { isPlayerActive, useWorld } from "@/lib/world/store"
 import { useAchievements } from "@/lib/world/achievements"
 import { COLLIDERS, WORLD_BOUNDS } from "@/lib/world/worldData"
 
@@ -51,12 +51,15 @@ export function PhysicsProps() {
     })),
   )
 
-  // Click-to-punch: raycast from the crosshair on desktop.
+  // Click-to-punch: raycast from the crosshair on desktop (pointer-locked or
+  // drag-look fallback).
   useEffect(() => {
     const onDown = (e: MouseEvent) => {
       if (e.button !== 0) return
       const s = useWorld.getState()
-      if (s.touch || !s.locked || s.activePanel) return
+      if (s.touch || !isPlayerActive(s) || s.activePanel) return
+      const el = e.target as HTMLElement | null
+      if (el?.closest?.("button, a, input, .mc-panel, .mc-overlay, .mc-hotbar")) return
       punchQueued.current = true
     }
     window.addEventListener("mousedown", onDown)
@@ -66,7 +69,7 @@ export function PhysicsProps() {
   useFrame((_, dtRaw) => {
     const dt = Math.min(dtRaw, 0.05)
     const s = useWorld.getState()
-    const active = (s.touch ? s.started : s.locked) && !s.activePanel
+    const active = isPlayerActive(s) && !s.activePanel
     const bs = bodies.current
 
     if (punchQueued.current) {
